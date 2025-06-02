@@ -1,0 +1,11 @@
+/* global resets */
+* {
+    overflow: hidden;
+    user-select: none;
+    font-family: 'Segoe UI', 'BIZ UDゴシック', Roboto, sans-serif;
+}
+
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb {
+    display: none;
+}

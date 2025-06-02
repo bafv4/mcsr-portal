@@ -1,0 +1,38 @@
+# 日本語(ja)
+
+# Global
+next: "次へ"
+back: "戻る"
+skip: "スキップ"
+cancel: "キャンセル"
+tools: "ツール"
+setup: "セットアップ"
+required: "必須"
+optional: "オプション"
+
+# Home.vue
+home: "ホーム"
+ver: "バージョン"
+author: "作者"
+
+home-setup-s1: "Minecraft 1.16のRTA（RSG、SSG、Ranked）のセットアップを行います。"
+home-setup-s2: "ダウンロード済の場合はスキップできます。一部は公式ページよりインストーラで取得し、自動で実行します。"
+home-setup-s3: ""
+
+home-tools-s1: "In dev..."
+
+# ChooseDestination
+dest: "フォルダの選択"
+dest-s1: "ダウンロードするファイルを配置するフォルダを選択してください。"
+dest-s2: "MultiMC、GraalVM、外部ツールなどはここで選択したフォルダに保存されます。"
+select-folder: "ここをクリックして選択..."
+folder-selected: "選択されたフォルダ："
+dest-err: "フォルダが選択されていません！"
+
+# Env
+env: "アプリ・環境"
+env-t: "アプリ・環境のインストール"
+env-s1: "インストールするものを選択し、ダウンロードボタンを押してください。"
+
+# Instance
+instance: "インスタンス"
