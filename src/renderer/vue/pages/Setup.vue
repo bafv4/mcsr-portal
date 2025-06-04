@@ -66,7 +66,7 @@ import { nextTick, ref, shallowRef, watch } from 'vue';
 
 // choose destination directory
 import ChooseDest from './steps/ChooseDest.vue';
-import { useDirStore } from '../../scripts/Stores';
+import { useDirStore } from '../../composables/Stores';
 const dir = useDirStore();
 
 // env

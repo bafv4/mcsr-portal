@@ -10,6 +10,7 @@ setup: "セットアップ"
 required: "必須"
 optional: "オプション"
 type: "タイプ"
+loading: "読み込み中..."
 
 # Home.vue
 home: "ホーム"

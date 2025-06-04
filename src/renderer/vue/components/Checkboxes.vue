@@ -1,11 +1,15 @@
 <template>
     <v-container fluid>
-        <v-row class="">
-            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex ga-1 pa-1 align-center chk-block">
-                <!-- チェックボックス -->
-                <v-checkbox :label="getItemName(item.id)" :value="item.id" v-model="checkedItems" density="compact" hide-details
-                    class="ma-0 pa-0" @change="emitChange"></v-checkbox>
-                <Selector v-if="item.options.length >= 2" v-model="selectedOptions[item.id]" :options="item.options" :label="item.optionsName ? t(item.optionsName) : t('type')" @change="(o) => handleOptionsChange(item.id, o)" inline class="" />
+        <v-row>
+            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex ga-4 chk-block">
+                <label class="d-flex ga-4 align-center cursor-pointer flex-0-0" style="width: 32%;">
+                    <v-checkbox :value="item.id" v-model="checkedItems" density="compact"
+                        hide-details color="primary" class="ma-0 pa-0" @change="emitChange"></v-checkbox>
+                    <span class="d-inline-block">{{ getItemName(item.id) }}</span>
+                </label>
+                <Selector v-if="item.options.length >= 2" v-model="selectedOptions[item.id]" :options="item.options"
+                    :label="item.optionsName ? t(item.optionsName) : t('type')"
+                    @change="(o) => handleOptionsChange(item.id, o)" inline />
             </v-col>
         </v-row>
     </v-container>
@@ -35,7 +39,7 @@ const getItemName = computed(() => {
 const selectedOptions = ref<Record<string, Option>>({});
 props.items.forEach(item => {
     if (item.options.length >= 2) {
-        selectedOptions.value[item.id] = {id: "", name:"", url: ""};
+        selectedOptions.value[item.id] = { id: "", name: "", url: "" };
     } else {
         selectedOptions.value[item.id] = item.options[0];
     }
@@ -73,7 +77,4 @@ function emitChange() {
 </script>
 
 <style scoped>
-.chk-block {
-    height: 4.5rem;
-}
 </style>
