@@ -1,18 +1,20 @@
-type Tag = "mod" | "installer" | "zip" | "jar" | "other";
-
 export type Locales = 'ja' | 'en';
+export type Tag = "mod" | "installer" | "zip" | "jar" | "other";
 
-export interface ItemInfo {
-    id: string,
-    options: Option[],
-    props?: Record<string, any>,   // もし使わなかったら削除
+export interface Item {
+    [key: string]: any;
+    id: string;
+    name: string;
+    optionsName?: string,
+    options: Option[];
+    selectedOption?: Option;
 }
 
 export interface Option {
-    key: string,
+    [key: string]: any,
+    id: string,
     name: string,
     url: string,
-    ver?: string,
     tag?: Tag,
 }
 

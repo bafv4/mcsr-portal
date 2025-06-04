@@ -1,36 +1,22 @@
 <template>
     <v-container fluid>
-        <v-row>
-            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex align-center">
+        <v-row class="">
+            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex ga-1 pa-1 align-center chk-block">
                 <!-- チェックボックス -->
-                <v-checkbox :label="item.label" :value="item.id" v-model="checkedItems" density="compact" hide-details
+                <v-checkbox :label="getItemName(item.id)" :value="item.id" v-model="checkedItems" density="compact" hide-details
                     class="ma-0 pa-0" @change="emitChange"></v-checkbox>
-
-                <v-select v-if="item.options.length >= 2" :items="item.options" :label="item.optionsName"
-                    item-title="label" item-value="id" v-model="selectedOptions[item.id]" density="comfortable"
-                    hide-details class="ml-4" @change="emitChange" :elevation="2"></v-select>
+                <Selector v-if="item.options.length >= 2" v-model="selectedOptions[item.id]" :options="item.options" :label="item.optionsName ? t(item.optionsName) : t('type')" @change="(o) => handleOptionsChange(item.id, o)" inline class="" />
             </v-col>
         </v-row>
     </v-container>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, toRefs } from 'vue';
-
-type Option = {
-    id: string;
-    label: string;
-    [key: string]: any;
-};
-
-type Item = {
-    id: string;
-    label: string;
-    optionsName?: string,
-    options: Option[];
-    selectedOption?: string;
-    [key: string]: any;
-};
+import { ref, watch, toRefs, computed } from 'vue';
+import type { Item, Option } from '../../../env';
+import Selector from './Selector.vue'
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const props = defineProps<{
     items: Item[];
@@ -40,13 +26,25 @@ const props = defineProps<{
 const { modelValue } = toRefs(props);
 const checkedItems = ref<string[]>([...modelValue.value]);
 
-const selectedOptions = ref<Record<string, string>>({});
-props.items.forEach(item => {
-    if (item.options && item.options.length >= 1) {
-        // 既定値: optionの1要素目
-        selectedOptions.value[item.id] = item.selectedOption || item.options[0].id;
+const getItemName = computed(() => {
+    return (id: string) => {
+        return t(id);
     }
 });
+
+const selectedOptions = ref<Record<string, Option>>({});
+props.items.forEach(item => {
+    if (item.options.length >= 2) {
+        selectedOptions.value[item.id] = {id: "", name:"", url: ""};
+    } else {
+        selectedOptions.value[item.id] = item.options[0];
+    }
+});
+
+const handleOptionsChange = (id: string, opt: Option) => {
+    selectedOptions.value[id] = opt;
+    emitChange();
+};
 
 watch(modelValue, (newVal) => {
     checkedItems.value = [...newVal];
@@ -57,7 +55,7 @@ watch(() => props.items, (newItems) => {
     newItems.forEach(item => {
         if (item.options && item.options.length >= 2) {
             if (!selectedOptions.value[item.id]) {
-                selectedOptions.value[item.id] = item.selectedOption || item.options[0].id;
+                selectedOptions.value[item.id] = item.selectedOption || item.options[0];
             }
         }
     });
@@ -65,18 +63,17 @@ watch(() => props.items, (newItems) => {
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
-    (e: 'update:selectedOptions', value: Record<string, string>): void;
+    (e: 'update:selectedOptions', val: Record<string, Option>): void;
 }>();
 
 function emitChange() {
     emit('update:modelValue', checkedItems.value);
-    emit('update:selectedOptions', { ...selectedOptions.value });
+    emit('update:selectedOptions', selectedOptions.value);
 }
 </script>
 
 <style scoped>
-.v-select .v-field__input {
-    display: flex !important;
-    justify-content: center !important;
+.chk-block {
+    height: 4.5rem;
 }
 </style>

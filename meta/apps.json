@@ -1,15 +1,16 @@
 [
     {
         "id": "java",
+        "optionsName": "java-distribution",
         "options": [
             {
-                "key": "adoptium21",
+                "id": "adoptium21",
                 "name": "Eclipse Adoptium (Java 21)",
                 "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jdk_x64_windows_hotspot_21.0.7_6.msi",
                 "tag": "installer"
             },
             {
-                "key": "oracle21",
+                "id": "oracle21",
                 "name": "Oracle JDK (Java 21)",
                 "url": "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe",
                 "tag": "installer"
@@ -20,7 +21,7 @@
         "id": "graal",
         "options": [
             {
-                "key": "graal21",
+                "id": "graal21",
                 "name": "GraalVM for JDK (Java 21)",
                 "url": "https://download.oracle.com/graalvm/21/latest/graalvm-jdk-21_windows-x64_bin.zip",
                 "tag": "zip"
@@ -29,15 +30,16 @@
     },
     {
         "id": "launcher",
+        "optionsName": "launcher-type",
         "options": [
             {
-                "key": "prism",
+                "id": "prism",
                 "name": "Prism Launcher",
                 "url": "https://github.com/PrismLauncher/PrismLauncher/releases/download/9.4/PrismLauncher-Windows-MSVC-Setup-9.4.exe",
                 "tag": "installer"
             },
             {
-                "key": "mmc",
+                "id": "mmc",
                 "name": "MultiMC",
                 "url": "https://files.multimc.org/downloads/mmc-develop-win32.zip",
                 "tag": "zip"
@@ -48,7 +50,7 @@
         "id": "obs",
         "options": [
             {
-                "key": "obs",
+                "id": "obs",
                 "name": "OBS",
                 "url": "https://cdn-fastly.obsproject.com/downloads/OBS-Studio-31.0.2-Windows-Installer.exe",
                 "tag": "installer"
@@ -59,7 +61,7 @@
         "id": "ahk",
         "options": [
             {
-                "key": "ahk",
+                "id": "ahk",
                 "name": "AutoHotKey",
                 "url": "https://www.autohotkey.com/download/ahk-install.exe",
                 "tag": "installer"

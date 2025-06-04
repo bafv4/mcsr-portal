@@ -53,7 +53,7 @@
                     <tbody>
                         <tr>
                             <th>Electron</th>
-                            <td>{{ pkg.devDependencies.electron }}</td>
+                            <td>{{ pkg.devDependencies.electron.replace('^', '') }}</td>
                         </tr>
                         <tr>
                             <th>Vue</th>
@@ -65,7 +65,7 @@
                         </tr>
                         <tr>
                             <th>{{ t('author') }}</th>
-                            <td>{{ pkg.author.name }}</td>
+                            <td>baf</td>
                         </tr>
                     </tbody>
                 </table>

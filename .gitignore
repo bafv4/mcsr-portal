@@ -9,8 +9,6 @@ lerna-debug.log*
 
 node_modules
 dist
-dist-app
-dist-main
 *.local
 
 # Editor directories and files
@@ -23,5 +21,4 @@ dist-main
 *.njsproj
 *.sln
 *.sw?
-*.link
 *.tgz

@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n';
 import ja from './data/locales/ja.yml';
 // 仮
-import en from './data/locales/en.yml';
+import en from './data/locales/ja.yml';
 
 const getDefaultLocale = () => {
     const supportedLocales = ['en', 'ja'];

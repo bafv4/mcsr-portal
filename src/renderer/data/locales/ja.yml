@@ -9,6 +9,7 @@ tools: "ツール"
 setup: "セットアップ"
 required: "必須"
 optional: "オプション"
+type: "タイプ"
 
 # Home.vue
 home: "ホーム"
@@ -33,6 +34,15 @@ dest-err: "フォルダが選択されていません！"
 env: "アプリ・環境"
 env-t: "アプリ・環境のインストール"
 env-s1: "インストールするものを選択し、ダウンロードボタンを押してください。"
+
+java: "Javaランタイム（JDK）"
+graal: "GraalVM"
+launcher: "ランチャー"
+obs: "OBS"
+ahk: "AutoHotKey"
+
+java-distribution: "JDKの種類"
+launcher-type: "ランチャーの種類"
 
 # Instance
 instance: "インスタンス"
