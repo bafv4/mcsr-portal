@@ -1,5 +1,5 @@
 <template>
-    <v-card class="pa-0 ma-0">
+    <v-card class="pa-0 ma-0 pb-2 elevation-0">
         <v-card-title class="pl-0 pt-0 pr-0">{{ t('dest') }}</v-card-title>
         <v-card-text class="pl-0 pr-0">
             <p>{{ t('dest-s1') }}</p>

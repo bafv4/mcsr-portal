@@ -45,5 +45,11 @@ ahk: "AutoHotKey"
 java-distribution: "JDKの種類"
 launcher-type: "ランチャーの種類"
 
+# 外部ツール
+ext-tools: "外部ツール"
+
 # Instance
 instance: "インスタンス"
+
+# mods
+mods: "Mod"

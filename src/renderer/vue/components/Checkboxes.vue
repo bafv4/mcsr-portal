@@ -1,10 +1,10 @@
 <template>
-    <v-container fluid>
+    <v-container class="container overflow-y-auto" fluid>
         <v-row>
             <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex ga-4 chk-block">
-                <label class="d-flex ga-4 align-center cursor-pointer flex-0-0" style="width: 32%;">
-                    <v-checkbox :value="item.id" v-model="checkedItems" density="compact"
-                        hide-details color="primary" class="ma-0 pa-0" @change="emitChange"></v-checkbox>
+                <label class="d-flex ga-2 align-center cursor-pointer flex-0-0" style="width: 32%;">
+                    <v-checkbox :value="item.id" v-model="checkedItems" density="compact" hide-details color="primary"
+                        class="ma-0 pa-0" @change="emitChange"></v-checkbox>
                     <span class="d-inline-block">{{ getItemName(item.id) }}</span>
                 </label>
                 <Selector v-if="item.options.length >= 2" v-model="selectedOptions[item.id]" :options="item.options"

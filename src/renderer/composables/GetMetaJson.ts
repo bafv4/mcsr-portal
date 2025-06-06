@@ -10,7 +10,7 @@ export const fetch = async (url: string) => {
         const res = await axios.get<Item[]>(url);
         data.value = res.data;
     } catch (e) {
-        console.error('Error:', e);
+        throw new Error('Error:' + e);
     } finally {
         finishedLoading.value = true;
     }

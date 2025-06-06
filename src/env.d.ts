@@ -1,6 +1,11 @@
 export type Locales = 'ja' | 'en';
 export type Tag = "mod" | "installer" | "zip" | "jar" | "other";
 
+export interface Step {
+    id: string,
+    optional: boolean,
+}
+
 export interface Item {
     [key: string]: any;
     id: string;

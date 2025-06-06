@@ -29,3 +29,6 @@ async function openDialog() {
     emits('select', dir.value);
 }
 </script>
+
+<style lang="css" scoped>
+</style>

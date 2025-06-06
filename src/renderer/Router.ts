@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 // pages
 import Home from "./vue/pages/Home.vue";
-import Setup from "./vue/pages/Setup.vue";
+import Dest from "./vue/pages/steps/Dest.vue";
 
 const routes = [
   {
@@ -11,9 +11,9 @@ const routes = [
     component: Home,
   },
   {
-    path: "/setup/",
-    name: "Setup",
-    component: Setup,
+    path: "/dest/",
+    name: "Dest",
+    component: Dest,
   },
 ];
 
