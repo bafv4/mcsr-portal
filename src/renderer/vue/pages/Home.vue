@@ -20,7 +20,7 @@
 
                 <v-card-actions>
                     <v-btn size="large" class="font-weight-bold" color="primary" variant="outlined"
-                        append-icon="mdi-arrow-right" :elevation="2" to="/dest/" block>{{
+                        append-icon="mdi-arrow-right" :elevation="2" to="/setup/" block>{{
                             t('setup') }}</v-btn>
                 </v-card-actions>
             </v-card>

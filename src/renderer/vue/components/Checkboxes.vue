@@ -9,7 +9,7 @@
                 </label>
                 <Selector v-if="item.options.length >= 2" v-model="selectedOptions[item.id]" :options="item.options"
                     :label="item.optionsName ? t(item.optionsName) : t('type')"
-                    @change="(o) => handleOptionsChange(item.id, o)" inline />
+                    @change="(o) => handleOptionsChange(item.id, o)" inline :disabled="!checkedItems.includes(item.id)" />
             </v-col>
         </v-row>
     </v-container>
@@ -33,7 +33,7 @@ const checkedItems = ref<string[]>([...modelValue.value]);
 const getItemName = computed(() => {
     return (id: string) => {
         return t(id);
-    }
+    };
 });
 
 const selectedOptions = ref<Record<string, Option>>({});

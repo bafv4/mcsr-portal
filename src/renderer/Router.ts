@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 // pages
 import Home from "./vue/pages/Home.vue";
-import Dest from "./vue/pages/steps/Dest.vue";
+import Setup from "./vue/pages/Setup.vue";
 
 const routes = [
   {
@@ -11,10 +11,10 @@ const routes = [
     component: Home,
   },
   {
-    path: "/dest/",
-    name: "Dest",
-    component: Dest,
-  },
+    path: "/setup/",
+    name: "Setup",
+    component: Setup,
+  }
 ];
 
 export const router = createRouter({

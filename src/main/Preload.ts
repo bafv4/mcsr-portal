@@ -6,10 +6,15 @@ contextBridge.exposeInMainWorld('bafv4', {
     /** リンクをブラウザで開く */
     openExternal: (url: string) => openExternal(url),
     /** ダウンロード開始 */
-    startDarwin: async (items: any[], dir: string) => await ipcRenderer.invoke('start-download', items, dir),
-    /** ダウンロード進捗状況のコールバック */
-    stateTick: (callback: (percent: number, state: any, target: string) => void) => {
-        ipcRenderer.on('state-tick', (_, percent, state, target) => callback(percent, state, target));
+    startDarwin: async (options: any[], dir: string) => await ipcRenderer.invoke('start-download', options, dir),
+    tick: (callback: (state: number, prog: number, target: string) => void) => {
+        ipcRenderer.on('tick', (_, state, prog, target) => callback(state, prog, target));
+    },
+    sendTotal: (callback: (zips: number, installers: number) => void) => {
+        ipcRenderer.on('total-files', (_, zips, installers) => callback(zips, installers));
+    },
+    catchDarwinErr: (callback: (state: number, errMsg: string) => void) => {
+        ipcRenderer.on('darwin-err', (_, state, msg) => callback(state, msg));
     },
 });
 
