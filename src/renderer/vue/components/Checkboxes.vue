@@ -32,7 +32,12 @@ const checkedItems = ref<string[]>([...modelValue.value]);
 
 const getItemName = computed(() => {
     return (id: string) => {
-        return t(id);
+        // @ts-ignore
+        if (t(id) == id) {
+            return props.items.find(i => i.id === id)?.options[0].name
+        } else {
+            return t(id);
+        }
     };
 });
 

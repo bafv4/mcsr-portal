@@ -13,6 +13,7 @@ export interface Item {
     optionsName?: string,
     options: Option[];
     selectedOption?: Option;
+    description?: string;
 }
 
 export interface Option {
@@ -21,4 +22,14 @@ export interface Option {
     name: string,
     url: string,
     tag?: Tag,
+}
+
+export interface InstanceOptions {
+    name: string,
+    version: string,
+    java: {
+        path: string,
+        args: string
+    },
+    fabric?: string
 }

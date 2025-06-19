@@ -106,7 +106,7 @@ const onChangeOptions = (val: Record<string, Option>) => {
 
 const tryFetch = async () => {
     try {
-        await fetch('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/apps.json');
+        await fetch('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/ext-tools.json');
     } catch (e) {
         console.error(e);
         error.value = true;

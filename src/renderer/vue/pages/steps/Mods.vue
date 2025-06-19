@@ -51,7 +51,7 @@
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
                 <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
 
-                <Checkboxes v-model="selected" :items="data" @update:selectedOptions="onChangeOptions" />
+                <Checkboxes v-model="selected" :items="[]" @update:selectedOptions="onChangeOptions" />
             </v-card>
         </template>
         <template #btn>
@@ -73,14 +73,14 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, type Ref } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingView from '../../components/LoadingView.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
-import type { Option } from '../../../../env';
-import { fetch, data } from '../../../composables/GetMetaJson';
+import type { Item, Option } from '../../../../env';
+import { fetch, data, translate } from '../../../composables/GetMetaJson';
 import Wizard from '../../components/Wizard.vue';
-import { useDirStore, useResourcesStore } from '../../../composables/Stores';
+import { useDirStore } from '../../../composables/Stores';
 
 const dir = useDirStore();
 const { t } = useI18n();
@@ -104,13 +104,17 @@ const onChangeOptions = (val: Record<string, Option>) => {
     selectedOptions.value = val;
 }
 
+const itemRef: Ref<Item[]> = ref([]);
+
 const tryFetch = async () => {
     try {
-        await fetch('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/apps.json');
+        await fetch('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/ext-tools.json');
     } catch (e) {
         console.error(e);
         error.value = true;
     } finally {
+        
+        itemRef.value = [];
         finishedLoading.value = true;
     }
 };
@@ -133,7 +137,6 @@ const tryDownload = () => {
         emit('error', t('env-err-1'))
     } else if (options.includes({ id: "", url: "", name: "" })) {
     } else {
-        useResourcesStore().add(chks);
         try {
             const op = JSON.parse(JSON.stringify(options));
             const to = JSON.parse(JSON.stringify(dir.get()));

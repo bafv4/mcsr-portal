@@ -6,7 +6,7 @@
                 <p>{{ t('dest-s1') }}</p>
                 <p>{{ t('dest-s2') }}</p>
             </v-card-text>
-            <DirInput @select="handleSelect" :init="val" />
+            <DirInput @select="handleSelect" :init="selected" />
         </template>
         <template #btn>
             <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-cancel" :elevation="0" color="error"
@@ -26,15 +26,14 @@ import DirInput from '../../components/DirInput.vue';
 import Wizard from '../../components/Wizard.vue';
 import { useDirStore } from '../../../composables/Stores';
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
+import { computed } from 'vue';
 const { t } = useI18n();
 
 const dir = useDirStore();
-const val = ref(dir.get());
+const selected = computed(() => dir.get());
 
 const handleSelect = (d: string) => {
     dir.set(d);
-    val.value = d;
 };
 
 const emit = defineEmits<{
@@ -43,18 +42,8 @@ const emit = defineEmits<{
     cancel: []
 }>();
 
-// validation
-defineExpose({
-    async validate(): Promise<string> {
-        if (val.value === '') {
-            return t('dest-err');
-        }
-        return '';
-    },
-});
-
 const checkOrNext = () => {
-    if (val.value === '') {
+    if (dir.get() === '') {
         emit('error', t('dest-err'));
     } else {
         emit('next');

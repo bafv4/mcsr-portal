@@ -5,9 +5,11 @@
                 <v-slide-group ref="headRef" class="w-100" v-model="step" direction="horizontal" show-arrows>
                     <v-slide-group-item v-for="(s, i) in steps" :key="i" :value="i + 1"
                         :ref="el => headItemRefs[i + 1] = el">
-                        <v-stepper-item class="text-body-2 align-left pa-4" :value="i + 1" :title="s.name"
-                            completeIcon="mdi-check-circle">
-                            <v-card-subtitle class="text-caption pl-0 ml-0" v-show="s.skipable">
+                        <v-stepper-item class="text-body-2 pa-4" :value="i + 1" completeIcon="mdi-check-circle">
+                            <v-card-title class="ma-0 pa-0 text-subtitle-1 text-start">
+                                {{ s.name }}
+                            </v-card-title>
+                            <v-card-subtitle class="text-caption pa-0 ma-0 text-start" v-show="s.skipable">
                                 {{ t('optional') }}
                             </v-card-subtitle>
                         </v-stepper-item>
@@ -39,11 +41,13 @@ import { nextTick, ref, shallowRef, watch } from 'vue';
 
 // choose destination directory
 import ChooseDest from './steps/ChooseDest.vue';
+import Env from './steps/Env.vue';
+import ExtTools from './steps/ExtTools.vue';
+import Instance from './steps/Instance.vue';
+import Mods from './steps/Mods.vue';
+
 import { useDirStore } from '../../composables/Stores';
 const dir = useDirStore();
-
-// env
-import Env from './steps/Env.vue';
 
 // i18n, routing
 import { useI18n } from 'vue-i18n';
@@ -70,7 +74,17 @@ const steps: Step[] = [
     },
     {
         name: t('ext-tools'),
-        card: null,
+        card: ExtTools,
+        skipable: true
+    },
+    {
+        name: t('instance'),
+        card: Instance,
+        skipable: false
+    },
+    {
+        name: t('mods'),
+        card: Mods,
         skipable: true
     },
 ];

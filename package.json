@@ -19,7 +19,8 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "concurrently": "^9.1.2",
-    "electron-updater": "^6.6.2"
+    "electron-updater": "^6.6.2",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@rollup/plugin-yaml": "^4.1.2",
