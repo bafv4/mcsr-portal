@@ -51,13 +51,10 @@
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
                 <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
 
-                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style>
-                    <template #item="{ item }">
-                        <div class="d-flex flex-column flex-grow-1">
-                            <span class="text-body-1">{{ item.name }}</span>
-                            <div v-if="item.description" class="text-caption text-medium-emphasis mt-1" style="line-height: 1.25;">
-                                {{ translatedDescriptions[item.id] || item.description }}
-                            </div>
+                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style use-translation-only>
+                    <template #description="{ item }">
+                        <div v-if="item.description" class="text-caption text-medium-emphasis mt-2" style="line-height: 1.4; overflow-wrap: break-word;">
+                            {{ translatedDescriptions[item.id] || item.description }}
                         </div>
                     </template>
                 </Checkboxes>

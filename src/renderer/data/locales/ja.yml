@@ -50,9 +50,6 @@ launcher: "ランチャー"
 obs: "OBS"
 ahk: "AutoHotKey"
 
-java-distribution: "JDKの種類"
-launcher-type: "ランチャーの種類"
-
 env-err-1: "何も選択されていません。"
 
 # 外部ツール
@@ -62,27 +59,25 @@ ext-tools-s: スピードランに役立つ外部ツールを任意でインス�
 
 # Instance
 instance: "インスタンス"
-instance-t: "Minecraftインスタンスの作成"
-instance-s1: "Minecraft 1.16.1のインスタンスを作成します。"
-instance-s2: "ランチャーのルートフォルダを選択し、インスタンスの設定を行ってください。"
+instance-t: インスタンス設定
+instance-s1: Minecraftのインスタンス設定を行います。
+instance-s2: MultiMCかPrism Launcherが必要です。
 
-launcher-root: "ランチャーのルートフォルダ"
-launcher-root-s1: "MultiMCまたはPrism Launcherのルートフォルダを選択してください。"
-select-launcher-root: "ランチャーのルートフォルダを選択..."
-launcher-root-selected: "選択されたランチャー："
-launcher-root-err: "ランチャーのルートフォルダが選択されていません！"
+launcher-root: ランチャーのルートフォルダ
+launcher-root-s1: MultiMCかPrism Launcherのフォルダを選択してください。自動検出されない場合は手動で設定してください。
+launcher-root-err: ランチャーのルートフォルダが設定されていません。
 
-instance-name: "インスタンス名"
-instance-name-s1: "インスタンスの名前を入力してください。"
+instance-name: インスタンス名
+instance-name-s1: インスタンスの名前を入力してください。
 instance-name-err: "インスタンス名が入力されていません！"
 
-memory-settings: "メモリ設定 (MB)"
-memory-min: "最小値"
-memory-max: "最大値"
-memory-err: "メモリ設定が正しくありません！"
+memory-settings: メモリ割り当て
+memory-min: メモリ(最小)
+memory-max: メモリ(最大)
+memory-err: メモリの割り当て量が不正です。
 
-fabric-loader: "Fabric Loader"
-fabric-loader-s1: "Fabric Loaderを使用するかどうかを選択してください。"
+fabric-loader: Fabric Loader
+fabric-loader-s1: Fabric Loaderをインストールするか選択してください。
 use-fabric: "Fabric Loaderを使用"
 fabric-version: "Fabric Loader バージョン"
 fabric-version-err: "Fabric Loaderのバージョンが選択されていません！"
@@ -103,6 +98,10 @@ mods-t: Modのインストール
 mods-s: インストールしたいModを選択してください。
 mods-fetch-err: Modリストの取得に失敗しました。
 no-mods-selected: "Modが選択されていません。"
+recommended: "推奨"
+rsg-only: "RSG専用"
+ssg-only: "SSG専用"
+accessibility: "アクセシビリティ"
 
 instance-java-args: Java引数
 instance-java-args-desc: 最適なパフォーマンスのための推奨引数です。

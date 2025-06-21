@@ -31,7 +31,7 @@
             <!-- メモリ設定 -->
             <v-card-subtitle class="pl-0 pr-0 pt-4">{{ t('memory-settings') }}</v-card-subtitle>
             <v-row class="mt-2">
-                <v-col cols="6">
+                <v-col cols="12" md="6">
                     <v-text-field
                         v-model.number="memoryMin"
                         :label="t('memory-min')"
@@ -43,7 +43,7 @@
                         hide-details
                     />
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="12" md="6">
                     <v-text-field
                         v-model.number="memoryMax"
                         :label="t('memory-max')"

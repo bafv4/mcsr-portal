@@ -6,6 +6,10 @@ back: "戻る"
 mods-t: Install Mods
 mods-s: Select the mods you want to install.
 mods-fetch-err: Failed to fetch mod list.
+recommended: "Recommended"
+rsg-only: "RSG Only"
+ssg-only: "SSG Only"
+accessibility: "Accessibility"
 done: Done
 p-1: Downloading
 instance-java-args: Java Arguments

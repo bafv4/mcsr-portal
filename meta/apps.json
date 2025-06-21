@@ -35,7 +35,7 @@
         },
         {
             "id": "launcher",
-            "name": "Minecraft Launcher",
+            "name": "Launcher",
             "description": "A launcher is required to manage and start Minecraft instances.",
             "optionsName": "launcher-type",
             "options": [
@@ -75,7 +75,7 @@
                     "id": "ahk",
                     "name": "AutoHotKey",
                     "url": "https://www.autohotkey.com/download/ahk-install.exe",
-                    "tag": "installer"
+                    "tag": "other"
                 }
             ]
         }

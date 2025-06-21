@@ -1,9 +1,15 @@
 <template>
     <!-- Card Style Layout -->
-    <div v-if="cardStyle" class="d-flex flex-column ga-2">
-        <v-card v-for="item in items" :key="item.id" variant="outlined">
-            <div class="d-flex ga-4 align-center pa-4">
-                <label class="d-flex ga-4 align-center cursor-pointer flex-grow-1">
+    <div v-if="cardStyle" class="d-flex flex-column ga-3">
+        <v-card
+            v-for="item in items"
+            :key="item.id"
+            variant="outlined"
+            :class="['checkbox-card', { 'is-selected': checkedItems.includes(item.id) }]"
+            class="pa-2"
+        >
+            <div class="cursor-pointer" @click="toggleCheckbox(item.id)">
+                <div class="d-flex ga-2 align-center pa-0">
                     <v-checkbox
                         :value="item.id"
                         v-model="checkedItems"
@@ -11,35 +17,44 @@
                         hide-details
                         color="primary"
                         class="ma-0 pa-0 flex-grow-0"
-                        @change="emitChange"
+                        readonly
                     ></v-checkbox>
-
-                    <!-- @slot Use this slot to custom render the item label -->
-                    <slot name="item" :item="item">
-                        <span class="d-inline-block">{{ getItemName(item.id) }}</span>
-                    </slot>
-                </label>
-
-                <Selector
-                    v-if="item.options.length >= 2"
-                    v-model="selectedOptions[item.id]"
-                    :options="item.options"
-                    :label="getOptionName(item)"
-                    @change="(o: Option) => handleOptionsChange(item.id, o)"
-                    inline
-                    :disabled="!checkedItems.includes(item.id)"
-                    style="max-width: 200px;"
-                    class="flex-shrink-1"
-                />
+                    <div class="flex-grow-1 text-left" style="min-width: 0; height: 40px; display: flex; align-items: center;">
+                        <!-- @slot Use this slot to custom render the item header (name, chips, etc) -->
+                        <slot name="item" :item="item">
+                            <span class="d-inline-block">{{ getItemName(item.id) }}</span>
+                        </slot>
+                    </div>
+                </div>
+                <!-- Description slot, outside the main flex container -->
+                <div v-if="$slots.description" class="ma-0 pb-2" style="padding-left: 35px">
+                    <slot name="description" :item="item"></slot>
+                </div>
             </div>
+            <v-expand-transition>
+                <div v-if="checkedItems.includes(item.id) && item.options?.length >= 2" class="pt-2 pb-3" @click.stop style="padding-left: 35px">
+                    <v-btn-toggle
+                        v-model="selectedOptions[item.id]"
+                        @update:modelValue="emitChange"
+                        color="primary"
+                        variant="outlined"
+                        density="compact"
+                        mandatory
+                    >
+                        <v-btn v-for="opt in item.options" :key="opt.id" :value="opt" size="small" class="text-none">
+                            {{ opt.name }}
+                        </v-btn>
+                    </v-btn-toggle>
+                </div>
+            </v-expand-transition>
         </v-card>
     </div>
 
     <!-- Default List Style Layout -->
     <v-container v-else class="container overflow-y-auto" fluid>
         <v-row>
-            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex ga-4 chk-block">
-                <label class="d-flex ga-2 align-center cursor-pointer flex-0-0" style="width: 32%;">
+            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex flex-column chk-block">
+                <label class="d-flex ga-2 align-center cursor-pointer flex-0-0">
                     <v-checkbox
                         :value="item.id"
                         v-model="checkedItems"
@@ -54,24 +69,30 @@
                         <span class="d-inline-block">{{ getItemName(item.id) }}</span>
                     </slot>
                 </label>
-                <Selector
-                    v-if="item.options.length >= 2"
-                    v-model="selectedOptions[item.id]"
-                    :options="item.options"
-                    :label="getOptionName(item)"
-                    @change="(o: Option) => handleOptionsChange(item.id, o)"
-                    inline
-                    :disabled="!checkedItems.includes(item.id)"
-                />
+                <v-expand-transition>
+                    <div v-if="checkedItems.includes(item.id) && item.options?.length >= 2" class="pl-10 pt-2">
+                        <v-btn-toggle
+                            v-model="selectedOptions[item.id]"
+                            @update:modelValue="emitChange"
+                            color="primary"
+                            variant="outlined"
+                            density="compact"
+                            mandatory
+                        >
+                            <v-btn v-for="opt in item.options" :key="opt.id" :value="opt" size="small" class="text-none">
+                                {{ opt.name }}
+                            </v-btn>
+                        </v-btn-toggle>
+                    </div>
+                </v-expand-transition>
             </v-col>
         </v-row>
     </v-container>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, toRefs, computed } from 'vue';
+import { ref, watch, toRefs, computed, onMounted } from 'vue';
 import type { Item, Option } from '../../../env';
-import Selector from './Selector.vue'
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -80,6 +101,7 @@ const props = defineProps<{
     items: Item[];
     modelValue: string[];
     cardStyle?: boolean;
+    useTranslationOnly?: boolean;
 }>();
 
 const { modelValue } = toRefs(props);
@@ -87,61 +109,56 @@ const checkedItems = ref<string[]>([...modelValue.value]);
 
 const getItemName = computed(() => {
     return (id: string) => {
-        // @ts-ignore
-        const item = props.items.find(i => i.id === id);
-        if (t(id) == id) {
-            return item?.name || item?.options[0].name;
-        } else {
+        // useTranslationOnlyがtrueの場合、強制的に翻訳を試みる
+        if (props.useTranslationOnly) {
             return t(id);
         }
+        
+        // デフォルトの動作：翻訳が存在すれば返し、なければitem.nameにフォールバックする
+        const item = props.items.find(i => i.id === id);
+        const translated = t(id);
+        if (translated !== id) {
+            return translated;
+        }
+        return item?.name;
     };
 });
 
-const getOptionName = (item: Item): string => {
-    const option = item.options.find(o => o.optionsName);
-    if (option && option.optionsName) {
-        return t(option.optionsName);
-    }
-    return t('type');
-}
-
 const selectedOptions = ref<Record<string, Option>>({});
-props.items.forEach(item => {
-    if (item.options.length >= 2) {
-        // 以前に保存した値があればそれを使う、なければ空のオブジェクト
-        selectedOptions.value[item.id] = selectedOptions.value[item.id] || { id: "", name: "", url: "" };
-    } else {
-        selectedOptions.value[item.id] = item.options[0];
-    }
-});
 
-const handleOptionsChange = (id: string, opt: Option) => {
-    selectedOptions.value[id] = opt;
-    emitChange();
+const initializeOptions = () => {
+    props.items.forEach(item => {
+        if (item.options?.length) {
+            // Set first option as default, only if not already set
+            if(!selectedOptions.value[item.id]) {
+                selectedOptions.value[item.id] = item.options[0];
+            }
+        }
+    });
+    emitChange(); // Emit initial state
 };
+
+onMounted(initializeOptions);
+watch(() => props.items, initializeOptions, { deep: true });
 
 watch(modelValue, (newVal) => {
     checkedItems.value = [...newVal];
 });
 
-// itemsが変わった時もselectedOptionsを初期化
-watch(() => props.items, (newItems) => {
-    newItems.forEach(item => {
-        if (item.options && item.options.length >= 2) {
-            if (!selectedOptions.value[item.id]) {
-                const defaultOption = item.options.find(o => o.id === item.id) || item.options[0];
-                selectedOptions.value[item.id] = defaultOption;
-            }
-        } else if (item.options.length === 1) {
-            selectedOptions.value[item.id] = item.options[0];
-        }
-    });
-}, { immediate: true, deep: true });
-
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
     (e: 'update:selectedOptions', val: Record<string, Option>): void;
 }>();
+
+function toggleCheckbox(id: string) {
+    const index = checkedItems.value.indexOf(id);
+    if (index > -1) {
+        checkedItems.value.splice(index, 1);
+    } else {
+        checkedItems.value.push(id);
+    }
+    emitChange();
+}
 
 function emitChange() {
     emit('update:modelValue', checkedItems.value);
@@ -150,4 +167,16 @@ function emitChange() {
 </script>
 
 <style scoped>
+.checkbox-card {
+    border-color: transparent;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.checkbox-card.is-selected {
+    border-color: rgb(var(--v-theme-primary));
+}
+
+.checkbox-card:not(.is-selected):hover {
+    border-color: rgba(var(--v-border-color), 0.5);
+}
 </style>
