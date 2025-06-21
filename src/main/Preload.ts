@@ -7,6 +7,12 @@ contextBridge.exposeInMainWorld('bafv4', {
     openExternal: (url: string) => openExternal(url),
     /** ダウンロード開始 */
     startDarwin: async (options: any[], dir: string) => await ipcRenderer.invoke('start-download', options, dir),
+    /** Prism Launcherのインストール確認 */
+    checkPrismLauncher: () => ipcRenderer.invoke('check-prism-launcher'),
+    /** インスタンス作成 */
+    createInstance: (instanceData: any) => ipcRenderer.invoke('create-instance', instanceData),
+    /** ディレクトリ作成 */
+    createDirectory: (dirPath: string) => ipcRenderer.invoke('create-directory', dirPath),
     tick: (callback: (state: number, prog: number, target: string) => void) => {
         ipcRenderer.on('tick', (_, state, prog, target) => callback(state, prog, target));
     },

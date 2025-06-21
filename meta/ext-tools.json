@@ -1,57 +1,69 @@
-[
-    {
-        "id": "jingle",
-        "options": [
-            {
-                "id": "jingle",
-                "name": "Jingle",
-                "url": "https://github.com/DuncanRuns/Jingle/releases/download/v1.1.4/Jingle-1.1.4.jar",
-                "tag": "jar"
-            }
-        ]
-    },
-    {
-        "id": "ninb",
-        "options": [
-            {
-                "id": "ninb",
-                "name": "NinjabrainBot",
-                "url": "https://github.com/Ninjabrain1/Ninjabrain-Bot/releases/download/1.5.1/Ninjabrain-Bot-1.5.1.jar",
-                "tag": "jar"
-            }
-        ]
-    },
-    {
-        "id": "paceman",
-        "options": [
-            {
-                "id": "paceman",
-                "name": "PaceMan Tracker",
-                "url": "https://github.com/PaceMan-MCSR/PaceMan-Tracker/releases/download/v0.7.0/paceman-tracker-0.7.0.jar",
-                "tag": "jar"
-            }
-        ]
-    },
-    {
-        "id": "modcheck",
-        "options": [
-            {
-                "id": "modcheck",
-                "name": "Mod Check",
-                "url": "https://github.com/tildejustin/modcheck/releases/download/3.0.3/modcheck-3.0.3.jar",
-                "tag": "jar"
-            }
-        ]
-    },
-    {
-        "id": "mapcheck",
-        "options": [
-            {
-                "id": "mapcheck",
-                "name": "Map-Check",
-                "url": "https://github.com/cylorun/Map-Check/releases/download/v4.3.0/Map-Check-4.3.0-all.jar",
-                "tag": "jar"
-            }
-        ]
-    }
-]
+{
+    "ext-tools": [
+        {
+            "id": "jingle",
+            "name": "Jingle",
+            "description": "A tool for managing and playing custom sounds in Minecraft.",
+            "options": [
+                {
+                    "id": "jingle",
+                    "name": "Jingle",
+                    "url": "https://github.com/DuncanRuns/Jingle/releases/download/v1.1.4/Jingle-1.1.4.jar",
+                    "tag": "jar"
+                }
+            ]
+        },
+        {
+            "id": "ninb",
+            "name": "Ninjabrain Bot",
+            "description": "A bot that assists with stronghold calculations for speedrunning.",
+            "options": [
+                {
+                    "id": "ninb",
+                    "name": "NinjabrainBot",
+                    "url": "https://github.com/Ninjabrain1/Ninjabrain-Bot/releases/download/1.5.1/Ninjabrain-Bot-1.5.1.jar",
+                    "tag": "jar"
+                }
+            ]
+        },
+        {
+            "id": "paceman",
+            "name": "PaceMan Tracker",
+            "description": "A tool for tracking and comparing speedrun paces.",
+            "options": [
+                {
+                    "id": "paceman",
+                    "name": "PaceMan Tracker",
+                    "url": "https://github.com/PaceMan-MCSR/PaceMan-Tracker/releases/download/v0.7.0/paceman-tracker-0.7.0.jar",
+                    "tag": "jar"
+                }
+            ]
+        },
+        {
+            "id": "modcheck",
+            "name": "Mod Check",
+            "description": "A utility to verify if the correct mods and versions are being used.",
+            "options": [
+                {
+                    "id": "modcheck",
+                    "name": "Mod Check",
+                    "url": "https://github.com/tildejustin/modcheck/releases/download/3.0.3/modcheck-3.0.3.jar",
+                    "tag": "jar"
+                }
+            ]
+        },
+        {
+            "id": "mapcheck",
+            "name": "Map Check",
+            "description": "A tool to analyze and check Minecraft world seeds.",
+            "options": [
+                {
+                    "id": "mapcheck",
+                    "name": "Map-Check",
+                    "url": "https://github.com/cylorun/Map-Check/releases/download/v4.3.0/Map-Check-4.3.0-all.jar",
+                    "tag": "jar"
+                }
+            ]
+        }
+    ]
+}

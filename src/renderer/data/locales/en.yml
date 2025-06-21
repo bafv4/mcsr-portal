@@ -3,3 +3,13 @@
 # Global
 next: "次へ"
 back: "戻る"
+mods-t: Install Mods
+mods-s: Select the mods you want to install.
+mods-fetch-err: Failed to fetch mod list.
+done: Done
+p-1: Downloading
+instance-java-args: Java Arguments
+instance-java-args-desc: Recommended arguments for optimal performance.
+# ext-tools
+ext-tools-t: Install External Tools
+ext-tools-s: You can optionally install external tools useful for speedrunning.

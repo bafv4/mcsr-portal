@@ -57,9 +57,52 @@ env-err-1: "何も選択されていません。"
 
 # 外部ツール
 ext-tools: "外部ツール"
+ext-tools-t: 外部ツールのインストール
+ext-tools-s: スピードランに役立つ外部ツールを任意でインストールできます。
 
 # Instance
 instance: "インスタンス"
+instance-t: "Minecraftインスタンスの作成"
+instance-s1: "Minecraft 1.16.1のインスタンスを作成します。"
+instance-s2: "ランチャーのルートフォルダを選択し、インスタンスの設定を行ってください。"
+
+launcher-root: "ランチャーのルートフォルダ"
+launcher-root-s1: "MultiMCまたはPrism Launcherのルートフォルダを選択してください。"
+select-launcher-root: "ランチャーのルートフォルダを選択..."
+launcher-root-selected: "選択されたランチャー："
+launcher-root-err: "ランチャーのルートフォルダが選択されていません！"
+
+instance-name: "インスタンス名"
+instance-name-s1: "インスタンスの名前を入力してください。"
+instance-name-err: "インスタンス名が入力されていません！"
+
+memory-settings: "メモリ設定 (MB)"
+memory-min: "最小値"
+memory-max: "最大値"
+memory-err: "メモリ設定が正しくありません！"
+
+fabric-loader: "Fabric Loader"
+fabric-loader-s1: "Fabric Loaderを使用するかどうかを選択してください。"
+use-fabric: "Fabric Loaderを使用"
+fabric-version: "Fabric Loader バージョン"
+fabric-version-err: "Fabric Loaderのバージョンが選択されていません！"
+
+java-args: "Java引数"
+java-args-s1: "Javaの起動引数を設定してください。"
+java-args-placeholder: "-XX:+UseZGC -XX:+AlwaysPreTouch -Dgraal.TuneInlinerExploration=1 -XX:NmethodSweepActivity=1"
+
+instance-created: "インスタンスが正常に作成されました！"
+instance-creation-err: "インスタンスの作成に失敗しました。"
+
+latest-badge: "最新"
+fabric-version-fetch-err: "Fabricバージョンの取得に失敗しました。"
 
 # mods
 mods: "Mod"
+mods-t: Modのインストール
+mods-s: インストールしたいModを選択してください。
+mods-fetch-err: Modリストの取得に失敗しました。
+no-mods-selected: "Modが選択されていません。"
+
+instance-java-args: Java引数
+instance-java-args-desc: 最適なパフォーマンスのための推奨引数です。

@@ -1,46 +1,20 @@
 <template>
-    <LoadingView v-if="!finishedLoading" transition="fade-transition" />
-    <Wizard v-else-if="error">
+    <LoadingView v-if="isLoading" />
+    <Wizard v-else-if="isDownloading">
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
-                <v-card-title class="pl-0 pt-0 pr-0" prepend-icon="mdi-alert-circle">An Error Has</v-card-title>
-                <v-card-text class="pl-0 pr-0">noway please make sure the internet connection is avalible</v-card-text>
-            </v-card>
-        </template>
-        <template #btn>
-            <v-btn color="primary" variant="outlined" @click="retry" prepend-icon="mdi-reload"
-                class="border-primary-md">
-                {{ t('retry') }}
-            </v-btn>
-        </template>
-    </Wizard>
-    <Wizard v-else-if="downloading">
-        <template #main>
-            <v-card class="pa-0 ma-0 elevation-0">
-                <v-card-title v-if="state == 4" class="pl-0 pt-0 pr-0" prepend-icon="mdi-alert-circle"
-                    transition="fade-transition">{{ t('done') }}</v-card-title>
-                <v-card-title v-else class="pl-0 pt-0 pr-0" prepend-icon="mdi-alert-circle"
-                    transition="fade-transition">{{ t('please-wait') }}</v-card-title>
+                <v-card-title v-if="state == 4" class="pl-0 pt-0 pr-0" prepend-icon="mdi-check-circle" transition="fade-transition">{{ t('done') }}</v-card-title>
+                <v-card-title v-else class="pl-0 pt-0 pr-0" prepend-icon="mdi-progress-download" transition="fade-transition">{{ t('please-wait') }}</v-card-title>
 
-                <v-sheet class="d-flex flex-column ga-4">
-                    <ProgressItem :state="state == 0 ? `pending` : state == 1 ? `processing` : `done`" :prog="percent"
-                        percent>
+                <v-sheet class="d-flex flex-column ga-4 mt-4">
+                    <ProgressItem :state="state == 0 ? 'pending' : state == 1 ? 'processing' : 'done'" :prog="percent" percent>
                         <span class="text-subtitle-1">{{ t('p-1') }}</span>
-                    </ProgressItem>
-                    <ProgressItem :state="state in [0, 1] ? `pending` : state == 2 ? `processing` : `done`"
-                        v-if="totalZips > 0" :total="totalZips" :prog="progZip">
-                        <span class="text-subtitle-1">{{ t('p-2') }}</span>
-                    </ProgressItem>
-                    <ProgressItem :state="state in [0, 1, 2] ? `pending` : state == 3 ? `processing` : `done`"
-                        v-if="totalInstallers > 0" :total="totalInstallers" :prog="progInstaller">
-                        <span class="text-subtitle-1">{{ t('p-3') }}</span>
                     </ProgressItem>
                 </v-sheet>
             </v-card>
         </template>
         <template #btn>
-            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right"
-                class="border-primary-md" :disabled="state != 4">
+            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right" class="border-primary-md" :disabled="state != 4">
                 {{ t('next') }}
             </v-btn>
         </template>
@@ -48,23 +22,31 @@
     <Wizard v-else>
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
-                <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
-                <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
-
-                <Checkboxes v-model="selected" :items="[]" @update:selectedOptions="onChangeOptions" />
+                <v-card-title class="pl-0 pt-0 pr-0">{{ t('mods-t') }}</v-card-title>
+                <v-card-text class="pl-0 pr-0">{{ t('mods-s') }}</v-card-text>
+                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style>
+                    <template #item="{ item }">
+                        <div class="d-flex flex-column flex-grow-1">
+                            <div class="d-flex align-center">
+                                <span class="text-body-1">{{ item.name }}</span>
+                                <v-chip v-if="item.version" size="x-small" class="ml-2" label>{{ item.version }}</v-chip>
+                            </div>
+                            <div v-if="item.description" class="text-caption text-medium-emphasis mt-1" style="line-height: 1.25;">
+                                {{ translatedDescriptions[item.id] || item.description }}
+                            </div>
+                        </div>
+                    </template>
+                </Checkboxes>
             </v-card>
         </template>
         <template #btn>
-            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary"
-                @click="$emit('back')">
+            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary" @click="$emit('back')">
                 {{ t('back') }}
             </v-btn>
-            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next"
-                class="border-secondary-md">
+            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next" class="border-secondary-md">
                 {{ t('skip') }}
             </v-btn>
-            <v-btn color="primary" variant="outlined" @click="tryDownload" prepend-icon="mdi-tray-arrow-down"
-                class="border-primary-md">
+            <v-btn color="primary" variant="outlined" @click="startDownload" prepend-icon="mdi-tray-arrow-down" class="border-primary-md">
                 {{ t('download') }}
             </v-btn>
         </template>
@@ -73,108 +55,110 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted, type Ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingView from '../../components/LoadingView.vue';
+import Wizard from '../../components/Wizard.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
 import type { Item, Option } from '../../../../env';
-import { fetch, data, translate } from '../../../composables/GetMetaJson';
-import Wizard from '../../components/Wizard.vue';
-import { useDirStore } from '../../../composables/Stores';
+import { useInstanceStore, useModsStore } from '../../../composables/Stores';
+import axios from 'axios';
+import { useTranslate } from '../../../composables/Translate';
 
-const dir = useDirStore();
 const { t } = useI18n();
-const error = ref(false);
-const finishedLoading = ref(false);
+const { translate } = useTranslate();
+const instanceStore = useInstanceStore();
+
+// --- State ---
+const isLoading = ref(true);
+const isDownloading = ref(false);
+const availableItems = ref<Item[]>([]);
+const selectedItems = ref<string[]>([]);
+const selectedOptions = ref<Record<string, Option>>({});
+const translatedDescriptions = ref<Record<string, string>>({});
 
 const emit = defineEmits<{
-    error: [msg: string],
-    next: [],
-    back: [],
+    (e: 'error', msg: string): void;
+    (e: 'next'): void;
+    (e: 'back'): void;
 }>();
 
-onMounted(() => {
-    tryFetch();
-});
+// --- Data Fetching and Processing ---
+const fetchMods = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.get('https://raw.githubusercontent.com/tildejustin/mcsr-meta/schema-6/mods.json');
+        const allMods = response.data.mods;
+        availableItems.value = allMods
+            .map((mod: any): Item | null => {
+                const versionInfo = mod.versions.find((v: any) => v.target_version.includes('1.16.1'));
+                if (!versionInfo) return null;
+                return {
+                    id: mod.modid,
+                    name: mod.name,
+                    description: mod.description,
+                    version: versionInfo.version,
+                    traits: mod.traits,
+                    options: [{ id: mod.modid, name: mod.name, url: versionInfo.url, tag: 'jar' }]
+                };
+            })
+            .filter((item: Item | null): item is Item => item !== null);
+    } catch (error) {
+        console.error('Failed to fetch mods:', error);
+        emit('error', t('mods-fetch-err'));
+    } finally {
+        isLoading.value = false;
+    }
+};
 
-const selected = ref<string[]>([]);
-const selectedOptions = ref<Record<string, Option>>({});
+watch(availableItems, (newItems) => {
+    newItems.forEach(async (item) => {
+        if (item.description) {
+            translatedDescriptions.value[item.id] = await translate(item.description);
+        }
+    });
+}, { deep: true });
+
+onMounted(fetchMods);
 
 const onChangeOptions = (val: Record<string, Option>) => {
     selectedOptions.value = val;
-}
+};
 
-const itemRef: Ref<Item[]> = ref([]);
+// --- Download Logic ---
+const startDownload = async () => {
+    const modsToDownload = selectedItems.value.map(id => selectedOptions.value[id]);
+    if (modsToDownload.length === 0) {
+        emit('next');
+        return;
+    }
 
-const tryFetch = async () => {
+    useModsStore().add(modsToDownload.map(m => m.id));
+
+    isDownloading.value = true;
     try {
-        await fetch('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/ext-tools.json');
-    } catch (e) {
-        console.error(e);
-        error.value = true;
-    } finally {
+        const modsDir = `${instanceStore.getLauncherRoot()}/instances/${instanceStore.getInstanceName()}/.minecraft/mods`;
+        await window.bafv4.createDirectory(modsDir);
         
-        itemRef.value = [];
-        finishedLoading.value = true;
+        const op = JSON.parse(JSON.stringify(modsToDownload));
+        const to = JSON.parse(JSON.stringify(modsDir));
+        window.bafv4.startDarwin(op, to);
+
+    } catch (error: any) {
+        emit('error', error.message || 'Download failed');
+        isDownloading.value = false;
     }
 };
 
-const retry = async () => {
-    error.value = false;
-    await tryFetch();
-};
-
-const downloading = ref(false);
-
-const tryDownload = () => {
-    // validate
-    const chks: string[] = selected.value;
-    const ops: Record<string, Option> = selectedOptions.value;
-    let options: Option[] = chks.map((key) => ops[key]);
-
-    // validate & process
-    if (options.length === 0) {
-        emit('error', t('env-err-1'))
-    } else if (options.includes({ id: "", url: "", name: "" })) {
-    } else {
-        try {
-            const op = JSON.parse(JSON.stringify(options));
-            const to = JSON.parse(JSON.stringify(dir.get()));
-            window.bafv4.startDarwin(op, to);
-            downloading.value = true;
-        } catch (error) {
-            console.error(error);
-        }
-    }
-};
-
-const totalZips = ref(0);
-const totalInstallers = ref(0);
+// --- Progress Tracking ---
 const percent = ref(0);
-const progZip = ref(0);
-const progInstaller = ref(0);
 const state = ref(0);
-const target = ref('');
-
-window.bafv4.sendTotal((z, i) => {
-    totalZips.value = z;
-    totalInstallers.value = i;
-});
-
-window.bafv4.tick((s, p, t) => {
+window.bafv4.tick((s, p, _t) => {
     state.value = s;
-    if (s == 1) {
-        percent.value = p;
-    } else if (s == 2) {
-        progZip.value = p;
-        target.value = t;
-    } else if (s == 3) {
-        progInstaller.value = p;
-        target.value = t;
-    }
+    if (s == 1) percent.value = p;
 });
-
 window.bafv4.catchDarwinErr((_s, m) => {
     emit('error', m);
+    isDownloading.value = false;
 });
 </script>

@@ -14,7 +14,8 @@
     "start": "wait-on http://localhost:5173 && concurrently -k \"pnpm tsc:watch\" \"pnpm electron:start\"",
     "tsc:watch": "tsc -p tsconfig.main.json --watch",
     "electron:start": "electron dist/main/main.js",
-    "build": "pnpm vite-build && tsc -p tsconfig.main.json && electron-builder"
+    "copy:templates": "copyfiles -u 2 \"src/main/templates/**/*.template\" dist/main",
+    "build": "pnpm vite-build && tsc -p tsconfig.main.json && pnpm copy:templates && electron-builder"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -28,6 +29,7 @@
     "@vue/devtools-api": "^7.7.6",
     "@vue/tsconfig": "^0.7.0",
     "axios": "^1.9.0",
+    "copyfiles": "^2.4.1",
     "electron": "^36.4.0",
     "electron-builder": "^26.0.12",
     "electron-dl": "^4.0.0",

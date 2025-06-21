@@ -7,21 +7,23 @@ export interface Step {
 }
 
 export interface Item {
-    [key: string]: any;
     id: string;
     name: string;
-    optionsName?: string,
-    options: Option[];
-    selectedOption?: Option;
     description?: string;
+    options: Option[];
+    traits?: string[];
+    version?: string;
 }
 
 export interface Option {
-    [key: string]: any,
-    id: string,
-    name: string,
-    url: string,
-    tag?: Tag,
+    id: string;
+    name: string;
+    description?: string;
+    url: string;
+    tag?: "zip" | "installer" | "jar";
+    optionsName?: string;
+    options?: Option[];
+    traits?: string[];
 }
 
 export interface InstanceOptions {

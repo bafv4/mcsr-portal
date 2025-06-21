@@ -1,5 +1,5 @@
 <template>
-    <LoadingView v-if="!finishedLoading" transition="fade-transition" />
+    <LoadingView v-if="isLoading" />
     <Wizard v-else-if="error">
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
@@ -14,7 +14,7 @@
             </v-btn>
         </template>
     </Wizard>
-    <Wizard v-else-if="downloading">
+    <Wizard v-else-if="isDownloading">
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
                 <v-card-title v-if="state == 4" class="pl-0 pt-0 pr-0" prepend-icon="mdi-alert-circle"
@@ -51,20 +51,26 @@
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
                 <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
 
-                <Checkboxes v-model="selected" :items="data" @update:selectedOptions="onChangeOptions" />
+                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style>
+                    <template #item="{ item }">
+                        <div class="d-flex flex-column flex-grow-1">
+                            <span class="text-body-1">{{ item.name }}</span>
+                            <div v-if="item.description" class="text-caption text-medium-emphasis mt-1" style="line-height: 1.25;">
+                                {{ translatedDescriptions[item.id] || item.description }}
+                            </div>
+                        </div>
+                    </template>
+                </Checkboxes>
             </v-card>
         </template>
         <template #btn>
-            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary"
-                @click="$emit('back')">
+            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary" @click="$emit('back')">
                 {{ t('back') }}
             </v-btn>
-            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next"
-                class="border-secondary-md">
+            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next" class="border-secondary-md">
                 {{ t('skip') }}
             </v-btn>
-            <v-btn color="primary" variant="outlined" @click="tryDownload" prepend-icon="mdi-tray-arrow-down"
-                class="border-primary-md">
+            <v-btn color="primary" variant="outlined" @click="startDownload" prepend-icon="mdi-tray-arrow-down" class="border-primary-md">
                 {{ t('download') }}
             </v-btn>
         </template>
@@ -73,105 +79,113 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingView from '../../components/LoadingView.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
-import type { Option } from '../../../../env';
-import { fetch, data } from '../../../composables/GetMetaJson';
 import Wizard from '../../components/Wizard.vue';
+import type { Item, Option } from '../../../../env';
 import { useDirStore, useResourcesStore } from '../../../composables/Stores';
+import { useTranslate } from '../../../composables/Translate';
+import axios from 'axios';
 
-const dir = useDirStore();
 const { t } = useI18n();
+const { translate } = useTranslate();
+const dirStore = useDirStore();
+
+// --- State ---
+const isLoading = ref(true);
 const error = ref(false);
-const finishedLoading = ref(false);
+const isDownloading = ref(false);
+const availableItems = ref<Item[]>([]);
+const selectedItems = ref<string[]>([]);
+const selectedOptions = ref<Record<string, Option>>({});
+const translatedDescriptions = ref<Record<string, string>>({});
 
 const emit = defineEmits<{
-    error: [msg: string],
-    next: [],
-    back: [],
+    (e: 'error', msg: string): void;
+    (e: 'next'): void;
+    (e: 'back'): void;
 }>();
 
-onMounted(() => {
-    tryFetch();
-});
-
-const selected = ref<string[]>([]);
-const selectedOptions = ref<Record<string, Option>>({});
-
-const onChangeOptions = (val: Record<string, Option>) => {
-    selectedOptions.value = val;
-}
-
-const tryFetch = async () => {
+// --- Data Fetching and Processing ---
+const loadData = async () => {
+    isLoading.value = true;
+    error.value = false;
     try {
-        await fetch('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/apps.json');
+        const response = await axios.get('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/apps.json');
+        availableItems.value = response.data.apps || [];
     } catch (e) {
         console.error(e);
         error.value = true;
     } finally {
-        finishedLoading.value = true;
+        isLoading.value = false;
     }
 };
 
-const retry = async () => {
-    error.value = false;
-    await tryFetch();
-};
-
-const downloading = ref(false);
-
-const tryDownload = () => {
-    // validate
-    const chks: string[] = selected.value;
-    const ops: Record<string, Option> = selectedOptions.value;
-    let options: Option[] = chks.map((key) => ops[key]);
-
-    // validate & process
-    if (options.length === 0) {
-        emit('error', t('env-err-1'))
-    } else if (options.includes({ id: "", url: "", name: "" })) {
-    } else {
-        useResourcesStore().add(chks);
-        try {
-            const op = JSON.parse(JSON.stringify(options));
-            const to = JSON.parse(JSON.stringify(dir.get()));
-            window.bafv4.startDarwin(op, to);
-            downloading.value = true;
-        } catch (error) {
-            console.error(error);
+watch(availableItems, (newItems) => {
+    newItems.forEach(async (item) => {
+        if (item.description) {
+            translatedDescriptions.value[item.id] = await translate(item.description);
         }
+    });
+}, { deep: true });
+
+onMounted(loadData);
+
+const onChangeOptions = (val: Record<string, Option>) => {
+    selectedOptions.value = val;
+};
+
+// --- Download Logic ---
+const startDownload = () => {
+    const optionsToDownload: Option[] = selectedItems.value.map(id => selectedOptions.value[id]);
+
+    if (optionsToDownload.length === 0) {
+        emit('error', t('env-err-1'));
+        return;
+    }
+    
+    // This seems to be a safeguard, but might be brittle.
+    if (optionsToDownload.some(opt => !opt.id)) {
+        // Handle case where an option is not fully selected
+        return;
+    }
+
+    useResourcesStore().add(selectedItems.value);
+    try {
+        const op = JSON.parse(JSON.stringify(optionsToDownload));
+        const to = JSON.parse(JSON.stringify(dirStore.get()));
+        window.bafv4.startDarwin(op, to);
+        isDownloading.value = true;
+    } catch (err) {
+        console.error(err);
+        emit('error', 'Download failed to start');
     }
 };
 
+// --- Progress Tracking (remains the same) ---
 const totalZips = ref(0);
 const totalInstallers = ref(0);
 const percent = ref(0);
 const progZip = ref(0);
 const progInstaller = ref(0);
 const state = ref(0);
-const target = ref('');
 
 window.bafv4.sendTotal((z, i) => {
     totalZips.value = z;
     totalInstallers.value = i;
 });
-
-window.bafv4.tick((s, p, t) => {
+window.bafv4.tick((s, p, _t) => {
     state.value = s;
-    if (s == 1) {
-        percent.value = p;
-    } else if (s == 2) {
-        progZip.value = p;
-        target.value = t;
-    } else if (s == 3) {
-        progInstaller.value = p;
-        target.value = t;
-    }
+    if (s == 1) percent.value = p;
+    else if (s == 2) progZip.value = p;
+    else if (s == 3) progInstaller.value = p;
 });
+window.bafv4.catchDarwinErr((_s, m) => emit('error', m));
 
-window.bafv4.catchDarwinErr((_s, m) => {
-    emit('error', m);
-});
+const retry = async () => {
+    error.value = false;
+    await loadData();
+};
 </script>
