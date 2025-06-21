@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { darwinHandler } from './Darwin';
+import { AutoUpdater } from './AutoUpdater';
 
 function renderTemplate(template: string, vars: Record<string, any>): string {
     return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
@@ -18,7 +19,7 @@ const createWindow = () => {
         title: `MCSR Portal`,
         autoHideMenuBar: true,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(__dirname, 'Preload.js'),
             contextIsolation: true,
             sandbox: false,
             webSecurity: true,
@@ -32,11 +33,26 @@ const createWindow = () => {
     if (isDev) {
         win.loadURL('http://localhost:5173');
     } else {
-        win.loadFile(path.join(__dirname, '../dist-app/index.html'));
+        win.loadFile(path.join(__dirname, '../app/index.html'));
     }
 };
 
-app.on('ready', createWindow);
+app.on('ready', async () => {
+    createWindow();
+    
+    // 自動アップデートチェック（本番環境のみ）
+    if (!app.isPackaged) {
+        console.log('Skipping auto-update check in development mode');
+        return;
+    }
+    
+    try {
+        const updater = new AutoUpdater();
+        await updater.performUpdate();
+    } catch (error) {
+        console.error('Auto-update error:', error);
+    }
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -129,6 +145,30 @@ ipcMain.handle('create-directory', async (_event, dirPath: string) => {
         return { success: true };
     } catch (error: any) {
         console.error('Directory creation error:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// 自動アップデートチェック
+ipcMain.handle('check-for-updates', async () => {
+    try {
+        const updater = new AutoUpdater();
+        const hasUpdate = await updater.checkForUpdates();
+        return { success: true, hasUpdate };
+    } catch (error: any) {
+        console.error('Check for updates error:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// 手動アップデート実行
+ipcMain.handle('perform-update', async () => {
+    try {
+        const updater = new AutoUpdater();
+        await updater.performUpdate();
+        return { success: true };
+    } catch (error: any) {
+        console.error('Perform update error:', error);
         return { success: false, error: error.message };
     }
 });

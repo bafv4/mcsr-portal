@@ -1,6 +1,6 @@
 <template>
     <!-- Card Style Layout -->
-    <div v-if="cardStyle" class="d-flex flex-column ga-3">
+    <div v-if="cardStyle" class="d-flex flex-column ga-2">
         <v-card
             v-for="item in items"
             :key="item.id"
@@ -66,7 +66,7 @@
                     ></v-checkbox>
                     <!-- @slot Use this slot to custom render the item label -->
                     <slot name="item" :item="item">
-                        <span class="d-inline-block">{{ getItemName(item.id) }}</span>
+                    <span class="d-inline-block">{{ getItemName(item.id) }}</span>
                     </slot>
                 </label>
                 <v-expand-transition>
@@ -127,14 +127,14 @@ const getItemName = computed(() => {
 const selectedOptions = ref<Record<string, Option>>({});
 
 const initializeOptions = () => {
-    props.items.forEach(item => {
+props.items.forEach(item => {
         if (item.options?.length) {
             // Set first option as default, only if not already set
             if(!selectedOptions.value[item.id]) {
-                selectedOptions.value[item.id] = item.options[0];
+        selectedOptions.value[item.id] = item.options[0];
             }
-        }
-    });
+    }
+});
     emitChange(); // Emit initial state
 };
 

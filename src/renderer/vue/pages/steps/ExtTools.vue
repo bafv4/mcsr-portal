@@ -16,31 +16,27 @@
     </Wizard>
     <Wizard v-else-if="isDownloading">
         <template #main>
-            <v-card class="pa-0 ma-0 elevation-0">
-                <v-card-title v-if="state == 4" class="pl-0 pt-0 pr-0" prepend-icon="mdi-alert-circle"
-                    transition="fade-transition">{{ t('done') }}</v-card-title>
-                <v-card-title v-else class="pl-0 pt-0 pr-0" prepend-icon="mdi-alert-circle"
-                    transition="fade-transition">{{ t('please-wait') }}</v-card-title>
-
-                <v-sheet class="d-flex flex-column ga-4">
-                    <ProgressItem :state="state == 0 ? `pending` : state == 1 ? `processing` : `done`" :prog="percent"
-                        percent>
-                        <span class="text-subtitle-1">{{ t('p-1') }}</span>
-                    </ProgressItem>
-                    <ProgressItem :state="state in [0, 1] ? `pending` : state == 2 ? `processing` : `done`"
-                        v-if="totalZips > 0" :total="totalZips" :prog="progZip">
-                        <span class="text-subtitle-1">{{ t('p-2') }}</span>
-                    </ProgressItem>
-                    <ProgressItem :state="state in [0, 1, 2] ? `pending` : state == 3 ? `processing` : `done`"
-                        v-if="totalInstallers > 0" :total="totalInstallers" :prog="progInstaller">
-                        <span class="text-subtitle-1">{{ t('p-3') }}</span>
-                    </ProgressItem>
-                </v-sheet>
-            </v-card>
+            <DownloadProgressView
+                :state="state"
+                :percent="percent"
+                :total-zips="totalZips"
+                :prog-zip="progZip"
+                :total-installers="totalInstallers"
+                :prog-installer="progInstaller"
+            >
+                <ProgressItem :state="state == 0 ? `pending` : state == 1 ? `processing` : `done`" :prog="percent" percent>
+                    <span class="text-subtitle-1">{{ t('p-1') }}</span>
+                </ProgressItem>
+                <ProgressItem :state="state in [0, 1] ? `pending` : state == 2 ? `processing` : `done`" v-if="totalZips > 0" :total="totalZips" :prog="progZip">
+                    <span class="text-subtitle-1">{{ t('p-2') }}</span>
+                </ProgressItem>
+                <ProgressItem :state="state in [0, 1, 2] ? `pending` : state == 3 ? `processing` : `done`" v-if="totalInstallers > 0" :total="totalInstallers" :prog="progInstaller">
+                    <span class="text-subtitle-1">{{ t('p-3') }}</span>
+                </ProgressItem>
+            </DownloadProgressView>
         </template>
         <template #btn>
-            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right"
-                class="border-primary-md" :disabled="state != 4">
+            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right" class="border-primary-md" :disabled="state != 4">
                 {{ t('next') }}
             </v-btn>
         </template>
@@ -84,6 +80,7 @@ import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingView from '../../components/LoadingView.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
 import Wizard from '../../components/Wizard.vue';
+import DownloadProgressView from '../../components/DownloadProgressView.vue';
 import type { Item, Option } from '../../../../env';
 import { useDirStore, useResourcesStore } from '../../../composables/Stores';
 import { useTranslate } from '../../../composables/Translate';

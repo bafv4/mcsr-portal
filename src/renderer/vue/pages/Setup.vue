@@ -20,7 +20,7 @@
             <v-stepper-window class="flex-grow-1 d-flex flex-column ma-4 pa-1" style="min-height: 0;">
                 <div class="flex-grow-1 d-flex flex-column ga-2" style="min-height: 0;">
                     <component :is="steps[step - 1].card" :ref="stepRefs[step - 1]" @next="step++" @back="step--"
-                        @cancel="cancel" @error="error"/>
+                        @cancel="cancel" @error="error" @complete="goToComplete"/>
                 </div>
             </v-stepper-window>
         </v-stepper>
@@ -105,6 +105,10 @@ const snackbarText = ref("");
 const cancel = () => {
     dir.$reset();
     router.push('/');
+};
+
+const goToComplete = () => {
+    router.push({ path: '/complete/' });
 };
 
 const error = (err: string) => {

@@ -1,12 +1,12 @@
-import axios from 'axios';
 import path from 'node:path';
 import sudo from 'sudo-prompt';
 import extract from "extract-zip"
 import * as fs from 'fs';
-import { download } from 'electron-dl';
 import { BrowserWindow, ipcMain } from 'electron';
 import { URL } from "url";
 import type { Option } from '../env';
+import got, { type Progress } from 'got';
+import { pipeline } from 'node:stream/promises';
 
 export const darwinHandler = () => {
     ipcMain.handle('start-download', async (_e, options: Option[], dir: string) => {
@@ -50,18 +50,36 @@ export const darwinHandler = () => {
 
         try {
             for (const op of options) {
-                const item = await download(win, op.url, {
-                    directory: dir,
-                    onProgress: (progress) => {
-                        const current: number = Math.round((progress.totalBytes * progress.percent + downloadedBytes) * 100 / totalBytes);
-                        tick(1, current, '');
-                    },
+                const downloadStream = got.stream(op.url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+                        'Accept-Language': 'en-US,en;q=0.9',
+                        'Accept-Encoding': 'gzip, deflate, br',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                        'Connection': 'keep-alive',
+                        'Referer': 'https://www.autohotkey.com/'
+                    }
                 });
-                downloadedBytes += item.getTotalBytes();
+
+                downloadStream.on('downloadProgress', (progress: Progress) => {
+                    if (progress.total) {
+                        const currentTotalProgress = downloadedBytes + progress.transferred;
+                        const currentPercent = Math.round((currentTotalProgress / totalBytes) * 100);
+                        tick(1, currentPercent, '');
+                    }
+                });
+                
+                const fullPath = getFullPath(op.url);
+                const writer = fs.createWriteStream(fullPath);
+
+                await pipeline(downloadStream, writer);
+
+                const stats = fs.statSync(fullPath);
+                downloadedBytes += stats.size;
             }
 
-        } catch (err) {
-            win.webContents.send('darwin-err', 1, err);
+        } catch (err: any) {
+            win.webContents.send('darwin-err', 1, err.message || 'An unknown download error occurred');
         }
 
         if (zips) {
@@ -102,9 +120,14 @@ export const calcSize = async (urls: string[]) => {
     console.log(urls);
     const sizes = await Promise.all(
         urls.map(async (url) => {
-            const res = await axios.head(url);
-            const len = res.headers['content-length'];
-            return len ? parseInt(len, 10) : 0;
+            try {
+                const res = await got.head(url);
+                const len = res.headers['content-length'];
+                return len ? parseInt(len, 10) : 0;
+            } catch (error) {
+                console.warn(`Failed to get size for ${url}`, error);
+                return 0; // Return 0 if size cannot be determined
+            }
         })
     );
     return sizes.reduce((acc, size) => acc + size, 0);

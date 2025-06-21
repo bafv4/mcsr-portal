@@ -95,11 +95,7 @@
             />
         </template>
         <template #btn>
-            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-cancel" :elevation="0" color="error"
-                @click="$emit('cancel')">
-                {{ t('cancel') }}
-            </v-btn>
-            <v-btn color="secondary" variant="text" @click="$emit('back')">
+            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary" @click="$emit('back')">
                 {{ t('back') }}
             </v-btn>
             <v-btn color="primary" variant="outlined" @click="checkOrNext" append-icon="mdi-arrow-right"
@@ -154,7 +150,8 @@ const emit = defineEmits<{
     error: [msg: string],
     next: [],
     back: [],
-    cancel: []
+    cancel: [],
+    complete: []
 }>();
 
 const fetchFabricVersions = async () => {
@@ -261,7 +258,9 @@ const checkOrNext = async () => {
     instanceStore.setInstanceName(finalInstanceName);
     instanceStore.setMemory(memoryMin.value, memoryMax.value);
     instanceStore.setUseFabric(useFabric.value);
-    instanceStore.setFabricVersion(fabricVersion.value);
+    if (useFabric.value) {
+        instanceStore.setFabricVersion(fabricVersion.value);
+    }
     instanceStore.setJavaArgs(javaArgs.value);
 
     // インスタンス作成
@@ -278,7 +277,11 @@ const checkOrNext = async () => {
         });
 
         if (result.success) {
-            emit('next');
+            if (useFabric.value) {
+                emit('next');
+            } else {
+                emit('complete');
+            }
         } else {
             emit('error', result.error || t('instance-creation-err'));
         }

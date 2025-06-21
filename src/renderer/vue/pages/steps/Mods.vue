@@ -2,20 +2,15 @@
     <LoadingView v-if="isLoading" />
     <Wizard v-else-if="isDownloading">
         <template #main>
-            <v-card class="pa-0 ma-0 elevation-0">
-                <v-card-title v-if="state == 4" class="pl-0 pt-0 pr-0" prepend-icon="mdi-check-circle" transition="fade-transition">{{ t('done') }}</v-card-title>
-                <v-card-title v-else class="pl-0 pt-0 pr-0" prepend-icon="mdi-progress-download" transition="fade-transition">{{ t('please-wait') }}</v-card-title>
-
-                <v-sheet class="d-flex flex-column ga-4 mt-4">
-                    <ProgressItem :state="state == 0 ? 'pending' : state == 1 ? 'processing' : 'done'" :prog="percent" percent>
-                        <span class="text-subtitle-1">{{ t('p-1') }}</span>
-                    </ProgressItem>
-                </v-sheet>
-            </v-card>
+            <DownloadProgressView :state="state" :percent="percent">
+                <ProgressItem :state="state == 0 ? 'pending' : state == 1 ? 'processing' : 'done'" :prog="percent" percent>
+                    <span class="text-subtitle-1">{{ t('p-1') }}</span>
+                </ProgressItem>
+            </DownloadProgressView>
         </template>
         <template #btn>
-            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right" class="border-primary-md" :disabled="state != 4">
-                {{ t('next') }}
+            <v-btn color="primary" variant="outlined" @click="goToComplete" append-icon="mdi-check" class="border-primary-md" :disabled="state != 4">
+                {{ t('complete') }}
             </v-btn>
         </template>
     </Wizard>
@@ -24,7 +19,36 @@
             <v-card class="pa-0 ma-0 elevation-0">
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('mods-t') }}</v-card-title>
                 <v-card-text class="pl-0 pr-0">{{ t('mods-s') }}</v-card-text>
-                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style>
+                
+                <!-- 絞り込みフィルター -->
+                <v-card-text class="pl-0 pr-0 pb-2">
+                    <div class="d-flex align-center justify-space-between mb-4">
+                        <v-btn-toggle
+                            v-model="selectedFilter"
+                            color="primary"
+                            variant="outlined"
+                            density="compact"
+                            mandatory
+                        >
+                            <v-btn v-for="filter in filters" :key="filter.value" :value="filter.value" size="small" class="text-none">
+                                {{ filter.label }}
+                            </v-btn>
+                        </v-btn-toggle>
+                        
+                        <!-- 一括選択ボタン -->
+                        <v-btn
+                            color="secondary"
+                            variant="outlined"
+                            size="small"
+                            prepend-icon="mdi-check-all"
+                            @click="selectAllRecommended"
+                        >
+                            {{ t('recommended-mods') }}
+                        </v-btn>
+                    </div>
+                </v-card-text>
+                
+                <Checkboxes v-model="selectedItems" :items="filteredItems" @update:selectedOptions="onChangeOptions" card-style>
                     <template #item="{ item }">
                         <div class="d-flex align-center flex-wrap">
                             <span class="text-body-1 mr-2">{{ item.name }}</span>
@@ -56,7 +80,7 @@
             <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary" @click="$emit('back')">
                 {{ t('back') }}
             </v-btn>
-            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next" class="border-secondary-md">
+            <v-btn color="secondary" variant="outlined" @click="goToComplete" append-icon="mdi-skip-next" class="border-secondary-md">
                 {{ t('skip') }}
             </v-btn>
             <v-btn color="primary" variant="outlined" @click="startDownload" prepend-icon="mdi-tray-arrow-down" class="border-primary-md">
@@ -68,19 +92,22 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingView from '../../components/LoadingView.vue';
 import Wizard from '../../components/Wizard.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
+import DownloadProgressView from '../../components/DownloadProgressView.vue';
 import type { Item, Option } from '../../../../env';
 import { useInstanceStore, useModsStore } from '../../../composables/Stores';
 import axios from 'axios';
 import { useTranslate } from '../../../composables/Translate';
+import { useRouter } from 'vue-router';
 
 const { t } = useI18n();
 const { translate } = useTranslate();
 const instanceStore = useInstanceStore();
+const router = useRouter();
 
 // --- State ---
 const isLoading = ref(true);
@@ -89,6 +116,8 @@ const availableItems = ref<Item[]>([]);
 const selectedItems = ref<string[]>([]);
 const selectedOptions = ref<Record<string, Option>>({});
 const translatedDescriptions = ref<Record<string, string>>({});
+const selectedFilter = ref<string>('rsg');
+const mcsrRankedMod = ref<Item | null>(null);
 
 const traitColors: Record<string, string> = {
     'recommended': 'success-lighten-4',
@@ -136,6 +165,34 @@ const emit = defineEmits<{
 const fetchMods = async () => {
     isLoading.value = true;
     try {
+        // MCSR Ranked Modを取得
+        const rankedVersions = await axios.get('https://api.modrinth.com/v2/project/mcsr-ranked/version');
+        
+        // 1.16.1対応の最新版を取得
+        const compatibleVersion = rankedVersions.data.find((version: any) => 
+            version.game_versions.includes('1.16.1') && 
+            version.loaders.includes('fabric')
+        );
+        
+        if (compatibleVersion) {
+            const file = compatibleVersion.files.find((file: any) => file.primary);
+            if (file) {
+                mcsrRankedMod.value = {
+                    id: 'mcsr-ranked',
+                    name: 'MCSR Ranked',
+                    description: t('mcsr-ranked-desc'),
+                    version: compatibleVersion.version_number,
+                    traits: ['ranked'],
+                    options: [{ 
+                        id: 'mcsr-ranked', 
+                        name: 'MCSR Ranked', 
+                        url: file.url, 
+                        tag: 'jar' 
+                    }]
+                };
+            }
+        }
+
         const response = await axios.get('https://raw.githubusercontent.com/tildejustin/mcsr-meta/schema-6/mods.json');
         const allMods = response.data.mods;
         
@@ -245,7 +302,7 @@ const onChangeOptions = (val: Record<string, Option>) => {
 const startDownload = async () => {
     const modsToDownload = selectedItems.value.map(id => selectedOptions.value[id]);
     if (modsToDownload.length === 0) {
-        emit('next');
+        emit('error', t('no-mods-selected'));
         return;
     }
 
@@ -266,6 +323,10 @@ const startDownload = async () => {
     }
 };
 
+const goToComplete = () => {
+    router.push({ path: '/complete/' });
+}
+
 // --- Progress Tracking ---
 const percent = ref(0);
 const state = ref(0);
@@ -277,4 +338,75 @@ window.bafv4.catchDarwinErr((_s, m) => {
     emit('error', m);
     isDownloading.value = false;
 });
+
+// --- Filtering Logic ---
+const filters = [
+    { value: 'rsg', label: 'RSG' },
+    { value: 'ssg', label: 'SSG' },
+    { value: 'ranked', label: 'Ranked' },
+];
+
+const filteredItems = computed(() => {
+    let items = availableItems.value;
+    
+    // MCSR Ranked Modを追加（Rankedフィルター選択時のみ）
+    if (selectedFilter.value === 'ranked' && mcsrRankedMod.value) {
+        items = [mcsrRankedMod.value, ...items];
+    }
+    
+    return items.filter(item => {
+        const traits = item.traits || [];
+        
+        // デバッグ用：Mod IDをログ出力
+        console.log(`Filtering mod: ${item.name} (ID: ${item.id})`);
+        
+        // Dynamic Menu FPSは常に非表示
+        if (item.id === 'dynamic-menu-fps' || item.name.toLowerCase().includes('dynamic menu fps')) {
+            console.log(`Hiding Dynamic Menu FPS: ${item.name}`);
+            return false;
+        }
+        
+        switch (selectedFilter.value) {
+            case 'rsg':
+                // RSGを選択→SSG用（ssg-only）のmodが非表示
+                return !traits.includes('ssg-only');
+            case 'ssg':
+                // SSGを選択→RSG用（rsg-only）のmodが非表示
+                return !traits.includes('rsg-only');
+            case 'ranked':
+                // Ranked→SSG専用のmodと特定のmodが非表示、MCSR Ranked Modを表示
+                const rankedHiddenMods = ['extraoptions', 'extra options', 'fastreset', 'worldpreview', 'forceportmod', 'force port mod', 'atum', 'seedqueue'];
+                const shouldHide = rankedHiddenMods.some(hiddenId => 
+                    item.id === hiddenId || 
+                    item.name.toLowerCase().includes(hiddenId.toLowerCase())
+                );
+                
+                if (shouldHide) {
+                    console.log(`Hiding mod for Ranked: ${item.name}`);
+                    return false;
+                }
+                
+                return !traits.includes('ssg-only');
+            default:
+                return true;
+        }
+    });
+});
+
+const selectAllRecommended = () => {
+    const recommendedItems = filteredItems.value.filter(item => {
+        const traits = item.traits || [];
+        return traits.includes('recommended');
+    });
+    
+    // Rankedフィルター選択時はMCSR Rankedも追加
+    if (selectedFilter.value === 'ranked' && mcsrRankedMod.value) {
+        recommendedItems.push(mcsrRankedMod.value);
+    }
+    
+    // 現在選択されているアイテムに、おすすめアイテムを追加
+    const currentSelected = new Set(selectedItems.value);
+    recommendedItems.forEach(item => currentSelected.add(item.id));
+    selectedItems.value = Array.from(currentSelected);
+};
 </script>

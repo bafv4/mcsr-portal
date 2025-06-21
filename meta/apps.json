@@ -65,19 +65,6 @@
                     "tag": "installer"
                 }
             ]
-        },
-        {
-            "id": "ahk",
-            "name": "AutoHotKey",
-            "description": "A scripting language for Windows to automate tasks.",
-            "options": [
-                {
-                    "id": "ahk",
-                    "name": "AutoHotKey",
-                    "url": "https://www.autohotkey.com/download/ahk-install.exe",
-                    "tag": "other"
-                }
-            ]
         }
     ]
 }

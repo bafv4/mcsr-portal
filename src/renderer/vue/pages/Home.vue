@@ -75,9 +75,8 @@
             <v-card-actions class="justify-start px-4 py-5 ga-4">
                 <v-btn class="text-caption" density="comfortable" prepend-icon="mdi-github"
                     @click="openRepo">Repo</v-btn>
-                <v-btn class="text-caption" density="comfortable" prepend-icon="mdi-update" @click="openRepo"
-                    disabled>Check
-                    for Updates</v-btn>
+                <v-btn class="text-caption" density="comfortable" prepend-icon="mdi-update" @click="checkForUpdates">
+                    Check for Updates</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -92,7 +91,26 @@ import pkg from '../../../../package.json';
 const info = ref(false);
 
 const openRepo = () => {
-    window.bafv4.openExternal('https://github.com/bafv4/mcsr-starter');
+    window.bafv4.openExternal('https://github.com/bafv4/mcsr-portal');
+};
+
+const checkForUpdates = async () => {
+    try {
+        const result = await window.bafv4.checkForUpdates();
+        if (result.success && result.hasUpdate) {
+            const performUpdate = await window.bafv4.performUpdate();
+            if (!performUpdate.success) {
+                console.error('Update failed:', performUpdate.error);
+            }
+        } else if (result.success && !result.hasUpdate) {
+            // アップデートがない場合のメッセージを表示
+            alert('最新版です。');
+        } else {
+            console.error('Check for updates failed:', result.error);
+        }
+    } catch (error) {
+        console.error('Update check error:', error);
+    }
 };
 </script>
 

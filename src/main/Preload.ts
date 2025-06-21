@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld('bafv4', {
     createInstance: (instanceData: any) => ipcRenderer.invoke('create-instance', instanceData),
     /** ディレクトリ作成 */
     createDirectory: (dirPath: string) => ipcRenderer.invoke('create-directory', dirPath),
+    /** 自動アップデートチェック */
+    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+    /** 手動アップデート実行 */
+    performUpdate: () => ipcRenderer.invoke('perform-update'),
     tick: (callback: (state: number, prog: number, target: string) => void) => {
         ipcRenderer.on('tick', (_, state, prog, target) => callback(state, prog, target));
     },

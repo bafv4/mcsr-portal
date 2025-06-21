@@ -2,14 +2,14 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "target": "ES2020",
-        "module": "CommonJS",
+        "module": "NodeNext",
         "lib": [
             "ES2020",
             "DOM"
         ],
         "outDir": "dist/main",
         "rootDir": "src/main/",
-        "moduleResolution": "node",
+        "moduleResolution": "NodeNext",
         "esModuleInterop": true,
         "strict": true,
         "allowSyntheticDefaultImports": true,

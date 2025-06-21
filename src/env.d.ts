@@ -35,3 +35,9 @@ export interface InstanceOptions {
     },
     fabric?: string
 }
+
+export interface UpdateResult {
+    success: boolean;
+    hasUpdate?: boolean;
+    error?: string;
+}

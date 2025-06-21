@@ -1,19 +1,118 @@
-# en (dummy file)
+# English (en)
 
 # Global
-next: "次へ"
-back: "戻る"
-mods-t: Install Mods
-mods-s: Select the mods you want to install.
-mods-fetch-err: Failed to fetch mod list.
+next: "Next"
+back: "Back"
+skip: "Skip"
+cancel: "Cancel"
+complete: "Complete"
+home: "Home"
+tools: "Tools"
+setup: "Setup"
+required: "Required"
+optional: "Optional"
+type: "Type"
+loading: "Loading..."
+retry: "Retry"
+download: "Download"
+
+please-wait: "Please wait..."
+p-1: "Downloading"
+p-2: "Extracting Zip files"
+p-3: "Installing"
+done: "Done"
+
+# Home.vue
+ver: "Version"
+author: "Author"
+
+home-setup-s1: "This will set up the environment for Minecraft 1.16 RTA (RSG, SSG, Ranked)."
+home-setup-s2: "You can skip this if you have already downloaded the files. Some files will be obtained from the official pages and executed automatically."
+home-setup-s3: ""
+
+home-tools-s1: "In dev..."
+
+# ChooseDestination
+dest: "Select Folder"
+dest-s1: "Please select a folder to place the downloaded files."
+dest-s2: "MultiMC, GraalVM, external tools, etc. will be saved in the folder selected here."
+select-folder: "Click here to select..."
+folder-selected: "Selected folder:"
+dest-err: "No folder selected!"
+
+# Env
+env: "Apps & Environment"
+env-t: "Install Apps & Environment"
+env-s1: "Select the items to install and press the download button."
+
+java: "Java Runtime (JDK)"
+graal: "GraalVM"
+launcher: "Launcher"
+obs: "OBS"
+ahk: "AutoHotKey"
+
+launcher-type: "Launcher Type"
+
+env-err-1: "Nothing selected."
+
+# External Tools
+ext-tools: "External Tools"
+ext-tools-t: "Install External Tools"
+ext-tools-s: "You can optionally install external tools useful for speedrunning."
+
+# Instance
+instance: "Instance"
+instance-t: "Instance Settings"
+instance-s1: "Set up the Minecraft instance."
+instance-s2: "MultiMC or Prism Launcher is required."
+
+launcher-root: "Launcher Root Folder"
+launcher-root-s1: "Please select the MultiMC or Prism Launcher folder. If not detected automatically, please set it manually."
+launcher-root-err: "Launcher root folder is not set."
+
+instance-name: "Instance Name"
+instance-name-s1: "Please enter a name for the instance."
+instance-name-err: "Instance name is not entered!"
+
+memory-settings: "Memory Allocation"
+memory-min: "Memory (Min)"
+memory-max: "Memory (Max)"
+memory-err: "Invalid memory allocation amount."
+
+fabric-loader: "Fabric Loader"
+fabric-loader-s1: "Select whether to install Fabric Loader."
+use-fabric: "Use Fabric Loader"
+fabric-version: "Fabric Loader Version"
+fabric-version-err: "Fabric Loader version is not selected!"
+
+java-args: "Java Arguments"
+java-args-s1: "Please set the Java launch arguments."
+java-args-placeholder: "-XX:+UseZGC -XX:+AlwaysPreTouch -Dgraal.TuneInlinerExploration=1 -XX:NmethodSweepActivity=1"
+
+instance-created: "Instance created successfully!"
+instance-creation-err: "Failed to create instance."
+
+latest-badge: "Latest"
+fabric-version-fetch-err: "Failed to fetch Fabric versions."
+
+# mods
+mods: "Mods"
+mods-t: "Install Mods"
+mods-s: "Please select the mods you want to install."
+recommended-mods: "Select all recommended mods"
+mcsr-ranked-desc: "Minecraft live speedrun race mod with elo ratings"
+mods-fetch-err: "Failed to fetch mod list."
+no-mods-selected: "No mods selected."
 recommended: "Recommended"
 rsg-only: "RSG Only"
 ssg-only: "SSG Only"
 accessibility: "Accessibility"
-done: Done
-p-1: Downloading
-instance-java-args: Java Arguments
-instance-java-args-desc: Recommended arguments for optimal performance.
-# ext-tools
-ext-tools-t: Install External Tools
-ext-tools-s: You can optionally install external tools useful for speedrunning.
+
+instance-java-args: "Java Arguments"
+instance-java-args-desc: "Recommended arguments for optimal performance."
+
+# Setup Complete
+setup-complete-t: "Setup Complete"
+setup-complete-s1: "Congratulations! All necessary files are ready."
+setup-complete-s2: "Please close this window and launch the instance from your launcher."
+close: "Close"
