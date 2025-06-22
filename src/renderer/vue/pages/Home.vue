@@ -34,7 +34,7 @@
 
                 <v-card-actions>
                     <v-btn size="large" class="font-weight-bold" color="secondary" variant="outlined"
-                        prepend-icon="mdi-pickaxe" :elevation="2" block disabled>{{
+                        prepend-icon="mdi-pickaxe" :elevation="2" to="/tools/" block>{{
                             t('tools') }}</v-btn>
                 </v-card-actions>
             </v-card>

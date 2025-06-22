@@ -41,7 +41,15 @@ contextBridge.exposeInMainWorld('bafv4', {
     /** インスタンスグループ一覧取得 */
     getInstanceGroups: (launcherRoot: string) => ipcRenderer.invoke('get-instance-groups', launcherRoot),
     /** インスタンスグループ作成・更新 */
-    updateInstanceGroups: (launcherRoot: string, groupsData: any) => ipcRenderer.invoke('update-instance-groups', launcherRoot, groupsData)
+    updateInstanceGroups: (launcherRoot: string, groupsData: any) => ipcRenderer.invoke('update-instance-groups', launcherRoot, groupsData),
+    /** アプリバージョン取得 */
+    getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+    // Mod Config APIs
+    getInstalledMods: (instancePath: string) => ipcRenderer.invoke('get-installed-mods', instancePath),
+    getModConfig: (instancePath: string, modId: string) => ipcRenderer.invoke('get-mod-config', instancePath, modId),
+    saveModConfig: (instancePath: string, modId: string, config: any) => ipcRenderer.invoke('save-mod-config', instancePath, modId, config),
+    getDefaultModConfig: (modId: string) => ipcRenderer.invoke('get-default-mod-config', modId),
+    testModDetection: () => ipcRenderer.invoke('test-mod-detection'),
 });
 
 const openExternal = (url: string) => {

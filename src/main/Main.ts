@@ -467,3 +467,192 @@ ipcMain.handle('translate', async (_event, text: string) => {
         return text; // Return original text on error
     }
 });
+
+// アプリバージョン取得
+ipcMain.handle('get-app-version', async () => {
+    try {
+        return app.getVersion();
+    } catch (error: any) {
+        return 'Unknown';
+    }
+});
+
+// Mod Config Handlers
+ipcMain.handle('get-installed-mods', async (_event, instancePath: string): Promise<string[]> => {
+    try {
+        const installedMods: string[] = [];
+        const targetMods = ['sodium', 'seedqueue', 'extra-options', 'standardsettings', 'worldpreview'];
+
+        console.log('Checking mods for instance path:', instancePath);
+        
+        // Try different possible mods directory paths
+        const possibleModsPaths = [
+            path.join(instancePath, 'mods'),
+            path.join(instancePath, 'minecraft', 'mods'),
+            path.join(instancePath, '.minecraft', 'mods')
+        ];
+        
+        let modsDir = '';
+        let files: string[] = [];
+        
+        for (const modsPath of possibleModsPaths) {
+            console.log('Checking mods directory:', modsPath);
+            if (fs.existsSync(modsPath)) {
+                modsDir = modsPath;
+                files = await fs.promises.readdir(modsPath);
+                console.log('Found mods directory:', modsPath);
+                console.log('Files in mods directory:', files);
+                break;
+            }
+        }
+        
+        if (!modsDir) {
+            console.log('No mods directory found in any of the expected locations');
+            return [];
+        }
+
+        for (const modId of targetMods) {
+            console.log(`Checking for mod: ${modId}`);
+            // Find a file that contains the modId (e.g., "sodium-2.4.1+1.16.1.jar", "seedqueue-1.4.1.jar")
+            const matchingFiles = files.filter(file => {
+                const lowerFile = file.toLowerCase();
+                const lowerModId = modId.toLowerCase();
+                
+                // Check various patterns based on actual file names
+                const patterns = [
+                    `${lowerModId}-`, // modId followed by hyphen (e.g., "sodium-", "seedqueue-")
+                    `${lowerModId}.jar`, // exact modId.jar (fallback)
+                ];
+                
+                const matches = lowerFile.endsWith('.jar') && 
+                               patterns.some(pattern => lowerFile.startsWith(pattern));
+                
+                console.log(`  File: ${file}, patterns checked:`, patterns);
+                console.log(`  Matches: ${matches}`);
+                return matches;
+            });
+            
+            if (matchingFiles.length > 0) {
+                console.log(`Found matching files for ${modId}:`, matchingFiles);
+                installedMods.push(modId);
+            }
+        }
+        
+        console.log('Final installed mods:', installedMods);
+        return installedMods;
+    } catch (error) {
+        console.error('Failed to read mods directory:', error);
+        return [];
+    }
+});
+
+ipcMain.handle('get-mod-config', async (_event, instancePath: string, modId: string) => {
+    try {
+        // Try different possible config directory paths
+        const possibleConfigPaths = [
+            path.join(instancePath, 'config', 'mcsr'),
+            path.join(instancePath, 'minecraft', 'config', 'mcsr'),
+            path.join(instancePath, '.minecraft', 'config', 'mcsr')
+        ];
+        
+        let configFile = '';
+        for (const configPath of possibleConfigPaths) {
+            const testFile = path.join(configPath, `${modId}.json`);
+            if (fs.existsSync(testFile)) {
+                configFile = testFile;
+                break;
+            }
+        }
+        
+        if (configFile) {
+            const content = await fs.promises.readFile(configFile, 'utf-8');
+            return JSON.parse(content);
+        }
+        return null; // Return null if no config file exists
+    } catch (error: any) {
+        console.error(`Failed to read or parse config for ${modId}:`, error);
+        return null;
+    }
+});
+
+ipcMain.handle('save-mod-config', async (_event, instancePath: string, modId: string, config: any) => {
+    try {
+        // Use the first possible config directory path
+        const configDir = path.join(instancePath, 'minecraft', 'config', 'mcsr');
+        const configFile = path.join(configDir, `${modId}.json`);
+        
+        if (!fs.existsSync(configDir)) {
+            await fs.promises.mkdir(configDir, { recursive: true });
+        }
+        await fs.promises.writeFile(configFile, JSON.stringify(config, null, 2), 'utf-8');
+        return { success: true };
+    } catch (error: any) {
+        console.error(`Failed to save config for ${modId}:`, error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Get default mod config from settings
+ipcMain.handle('get-default-mod-config', async (_event, modId: string) => {
+    try {
+        const settingsPath = path.join(__dirname, '..', '..', 'wk', 'settings', `${modId}.json`);
+        console.log('Loading default config from:', settingsPath);
+        
+        if (fs.existsSync(settingsPath)) {
+            const content = await fs.promises.readFile(settingsPath, 'utf-8');
+            return JSON.parse(content);
+        }
+        console.log('Default config file not found for:', modId);
+        return null;
+    } catch (error: any) {
+        console.error(`Failed to read default config for ${modId}:`, error);
+        return null;
+    }
+});
+
+// Test mod detection from wk/settings/mods (for debugging)
+ipcMain.handle('test-mod-detection', async () => {
+    try {
+        const modsDir = path.join(__dirname, '..', '..', 'wk', 'settings', 'mods');
+        console.log('Testing mod detection from:', modsDir);
+        
+        if (!fs.existsSync(modsDir)) {
+            console.log('Test mods directory does not exist');
+            return { success: false, error: 'Mods directory not found' };
+        }
+
+        const files = await fs.promises.readdir(modsDir);
+        console.log('Test files found:', files);
+        
+        const targetMods = ['sodium', 'seedqueue', 'extra-options', 'standardsettings', 'worldpreview'];
+        const detectedMods: string[] = [];
+        
+        for (const modId of targetMods) {
+            const matchingFiles = files.filter(file => {
+                const lowerFile = file.toLowerCase();
+                const lowerModId = modId.toLowerCase();
+                const patterns = [
+                    `${lowerModId}-`,
+                    `${lowerModId}.jar`,
+                ];
+                return lowerFile.endsWith('.jar') && 
+                       patterns.some(pattern => lowerFile.startsWith(pattern));
+            });
+            
+            if (matchingFiles.length > 0) {
+                detectedMods.push(modId);
+                console.log(`Test: Found ${modId} - ${matchingFiles}`);
+            }
+        }
+        
+        return { 
+            success: true, 
+            detectedMods, 
+            totalFiles: files.length,
+            files 
+        };
+    } catch (error: any) {
+        console.error('Test mod detection failed:', error);
+        return { success: false, error: error.message };
+    }
+});

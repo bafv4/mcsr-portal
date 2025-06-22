@@ -31,7 +31,7 @@ home-setup-s1: "Minecraft 1.16のRTA（RSG、SSG、Ranked）のセットアッ�
 home-setup-s2: "ダウンロード済の場合はスキップできます。一部は公式ページよりインストーラで取得し、自動で実行します。"
 home-setup-s3: ""
 
-home-tools-s1: "In dev..."
+home-tools-s1: "RTAに役立つ各種ツールを利用できます。"
 
 # ChooseDestination
 dest: "フォルダの選択"
@@ -58,21 +58,21 @@ env-err-1: "何も選択されていません。"
 
 # 外部ツール
 ext-tools: "外部ツール"
-ext-tools-t: 外部ツールのインストール
-ext-tools-s: スピードランに役立つ外部ツールを任意でインストールできます。
+ext-tools-t: "外部ツールのインストール"
+ext-tools-s: "スピードランに役立つ外部ツールを任意でインストールできます。"
 
 # Instance
 instance: "インスタンス"
-instance-t: インスタンス設定
-instance-s1: Minecraftのインスタンス設定を行います。
-instance-s2: MultiMCかPrism Launcherが必要です。
+instance-t: "インスタンス設定"
+instance-s1: "Minecraftのインスタンス設定を行います。"
+instance-s2: "MultiMCかPrism Launcherが必要です。"
 
-launcher-root: ランチャーのルートフォルダ
-launcher-root-s1: MultiMCかPrism Launcherのフォルダを選択してください。自動検出されない場合は手動で設定してください。
-launcher-root-err: ランチャーのルートフォルダが設定されていません。
+launcher-root: "ランチャーのルートフォルダ"
+launcher-root-s1: "MultiMCかPrism Launcherのフォルダを選択してください。自動検出されない場合は手動で設定してください。"
+launcher-root-err: "ランチャーのルートフォルダが設定されていません。"
 
-instance-name: インスタンス名
-instance-name-s1: インスタンスの名前を入力してください。
+instance-name: "インスタンス名"
+instance-name-s1: "インスタンスの名前を入力してください。"
 instance-name-err: "インスタンス名が入力されていません！"
 
 instance-group: "インスタンスグループ"
@@ -85,13 +85,13 @@ instance-group-no-group: "グループに属さない"
 instance-group-load-err: "グループ一覧の読み込みに失敗しました。"
 instance-group-create-err: "グループの作成に失敗しました。"
 
-memory-settings: メモリ割り当て
-memory-min: 最小 (MB)
-memory-max: 最大 (MB)
-memory-err: メモリの割り当て量が不正です。
+memory-settings: "メモリ割り当て"
+memory-min: "最小 (MB)"
+memory-max: "最大 (MB)"
+memory-err: "メモリの割り当て量が不正です。"
 
-fabric-loader: Fabric Loader
-fabric-loader-s1: Fabric Loaderをインストールするか選択してください。
+fabric-loader: "Fabric Loader"
+fabric-loader-s1: "Fabric Loaderをインストールするか選択してください。"
 use-fabric: "Fabric Loaderを使用"
 fabric-version: "Fabric Loader バージョン"
 fabric-version-err: "Fabric Loaderのバージョンが選択されていません！"
@@ -108,11 +108,11 @@ fabric-version-fetch-err: "Fabricバージョンの取得に失敗しました�
 
 # mods
 mods: "Mod"
-mods-t: Modのダウウンロード
-mods-s: Modを選択してください。
+mods-t: "Modのダウンロード"
+mods-s: "Modを選択してください。"
 recommended-mods: "おすすめのmodをすべて選択"
 mcsr-ranked-desc: "楽しいMCSRのランク戦"
-mods-fetch-err: Modリストの取得に失敗しました。
+mods-fetch-err: "Modリストの取得に失敗しました。"
 no-mods-selected: "Modが選択されていません。"
 recommended: "おすすめ"
 rsg-only: "RSG専用"
@@ -122,8 +122,8 @@ accessibility: "アクセシビリティ"
 instance-java-path: "Javaのパス"
 instance-java-path-desc: "使用するJavaのパスを指定してください。GraalVMをダウンロードした場合、自動で設定されます。"
 instance-java-path-placeholder: "javaw.exeを選択"
-instance-java-args: Java引数
-instance-java-args-desc: 最適なパフォーマンスのための推奨引数です。
+instance-java-args: "Java引数"
+instance-java-args-desc: "最適なパフォーマンスのための推奨引数です。"
 
 # Validation errors
 java-path-required: "Javaのパスを指定してください。"
@@ -134,6 +134,7 @@ setup-complete-t: "セットアップ完了"
 setup-complete-s1: "お疲れ様でした。必要なファイルの準備がすべて整いました。"
 setup-complete-s2: "このウィンドウを閉じて、ランチャーからインスタンスを起動してください。"
 close: "閉じる"
+go-to-tools: "ツール画面へ"
 
 # Auto Updater
 update-available: "アップデートが利用可能です"
@@ -142,3 +143,22 @@ update-download-failed: "アップデートのダウンロードに失敗しま�
 update-error: "アップデート中にエラーが発生しました。"
 yes: "はい"
 no: "いいえ"
+
+# Tool Mock
+tool-mock-content: "ここにツールのコンテンツが表示されます。"
+
+# Instance Conf
+choose-instance: "インスタンスを選択"
+
+# Tools
+mod-config: MOD設定
+select-instance-first: "先にインスタンスを選択してください"
+select-instance-hint: "インスタンスフォルダ（例：MyInstance）を選択してください"
+loading-mods: "MODを読み込み中..."
+no-mods-installed: "インストールされているMODがありません"
+loading-config: "設定を読み込み中..."
+configuration: "設定"
+save-config: "設定を保存"
+no-config-available: "利用可能な設定がありません"
+default: "デフォルト"
+discard-changes: "変更を破棄"
