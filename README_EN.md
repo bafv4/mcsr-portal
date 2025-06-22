@@ -1,6 +1,6 @@
 # MCSR Portal
 
-[English](README_EN.md) | 日本語
+English | [日本語](README.md)
 
 A tool to easily set up MCSR (Minecraft Speedrun) environment for Minecraft 1.16 Speedrun (RSG, SSG, Ranked).
 
