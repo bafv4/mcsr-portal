@@ -80,7 +80,7 @@ export class AutoUpdater {
             // Windows用のexeアセットを探す
             const exeAsset = releaseInfo.assets.find(asset => 
                 asset.name.endsWith('.exe') && 
-                (asset.name.includes('portable') || asset.name.includes('win'))
+                asset.name.startsWith('mcsr-portal-')
             );
 
             if (!exeAsset) {
