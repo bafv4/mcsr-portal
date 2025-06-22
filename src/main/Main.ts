@@ -141,7 +141,7 @@ ipcMain.handle('check-prism-launcher', async () => {
 // インスタンス作成
 ipcMain.handle('create-instance', async (_event, instanceData: any) => {
     try {
-        const { launcherRoot, instanceName, memoryMin, memoryMax, useFabric, fabricVersion, javaArgs, javaPath } = instanceData;
+        const { launcherRoot, instanceName, memoryMin, memoryMax, useFabric, fabricVersion, javaArgs, javaPath, selectedGroup, newGroupName } = instanceData;
         
         // インスタンスディレクトリの作成
         const instanceDir = path.join(launcherRoot, 'instances', instanceName);
@@ -180,6 +180,46 @@ ipcMain.handle('create-instance', async (_event, instanceData: any) => {
         }
         fs.writeFileSync(path.join(instanceDir, 'mmc-pack.json'), mmcPackStr);
 
+        // グループに追加
+        if (selectedGroup || newGroupName) {
+            const groupsFilePath = path.join(launcherRoot, 'instances', 'instgroups.json');
+            let groupsData: any;
+            
+            if (fs.existsSync(groupsFilePath)) {
+                const groupsContent = fs.readFileSync(groupsFilePath, 'utf-8');
+                groupsData = JSON.parse(groupsContent);
+            } else {
+                groupsData = {
+                    formatVersion: "1",
+                    groups: {}
+                };
+            }
+            
+            // グループ名を決定
+            let groupName = selectedGroup;
+            if (newGroupName && newGroupName.trim()) {
+                groupName = newGroupName.trim();
+            }
+            
+            if (groupName) {
+                // グループが存在しない場合は作成
+                if (!groupsData.groups[groupName]) {
+                    groupsData.groups[groupName] = {
+                        hidden: false,
+                        instances: []
+                    };
+                }
+                
+                // インスタンスをグループに追加（重複チェック）
+                if (!groupsData.groups[groupName].instances.includes(instanceName)) {
+                    groupsData.groups[groupName].instances.push(instanceName);
+                }
+                
+                // グループファイルを保存
+                fs.writeFileSync(groupsFilePath, JSON.stringify(groupsData, null, 2));
+            }
+        }
+
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -192,6 +232,51 @@ ipcMain.handle('create-directory', async (_event, dirPath: string) => {
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
         }
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+});
+
+// インスタンスグループ一覧取得
+ipcMain.handle('get-instance-groups', async (_event, launcherRoot: string) => {
+    try {
+        const groupsFilePath = path.join(launcherRoot, 'instances', 'instgroups.json');
+        
+        if (!fs.existsSync(groupsFilePath)) {
+            // ファイルが存在しない場合はデフォルトの構造を返す
+            return {
+                success: true,
+                groups: {
+                    formatVersion: "1",
+                    groups: {}
+                }
+            };
+        }
+        
+        const groupsData = fs.readFileSync(groupsFilePath, 'utf-8');
+        const groups = JSON.parse(groupsData);
+        
+        return { success: true, groups };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+});
+
+// インスタンスグループ作成・更新
+ipcMain.handle('update-instance-groups', async (_event, launcherRoot: string, groupsData: any) => {
+    try {
+        const groupsFilePath = path.join(launcherRoot, 'instances', 'instgroups.json');
+        
+        // ディレクトリが存在しない場合は作成
+        const groupsDir = path.dirname(groupsFilePath);
+        if (!fs.existsSync(groupsDir)) {
+            fs.mkdirSync(groupsDir, { recursive: true });
+        }
+        
+        // グループデータを書き込み
+        fs.writeFileSync(groupsFilePath, JSON.stringify(groupsData, null, 2));
+        
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };

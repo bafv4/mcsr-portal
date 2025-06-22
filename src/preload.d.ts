@@ -6,6 +6,8 @@ export interface Bafv4Api {
     createInstance: (instanceData: any) => Promise<{ success: boolean; error?: string }>;
     createDirectory: (dirPath: string) => Promise<{ success: boolean; error?: string }>;
     selectJavaExecutable: () => Promise<string | null>;
+    getInstanceGroups: (launcherRoot: string) => Promise<{ success: boolean; groups?: any; error?: string }>;
+    updateInstanceGroups: (launcherRoot: string, groupsData: any) => Promise<{ success: boolean; error?: string }>;
     checkForUpdates: () => Promise<{ success: boolean; hasUpdate?: boolean; error?: string }>;
     performUpdate: () => Promise<{ success: boolean; error?: string }>;
     tick: (callback: (state: number, prog: number, target: string) => void) => void;

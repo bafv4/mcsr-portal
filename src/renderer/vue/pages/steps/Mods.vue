@@ -227,6 +227,11 @@ const fetchMods = async () => {
                     return null;
                 }
                 
+                // PhosphorはStarlightと競合するため完全に除外
+                if (mod.modid === 'phosphor') {
+                    return null;
+                }
+                
                 // accessibilityのモッドは推奨にしない
                 const isAccessibility = mod.traits && mod.traits.includes('accessibility');
                 

@@ -33,7 +33,11 @@ contextBridge.exposeInMainWorld('bafv4', {
         ipcRenderer.on('darwin-err', (_, state, msg) => callback(state, msg));
     },
     /** 翻訳 */
-    translate: (text: string) => ipcRenderer.invoke('translate', text)
+    translate: (text: string) => ipcRenderer.invoke('translate', text),
+    /** インスタンスグループ一覧取得 */
+    getInstanceGroups: (launcherRoot: string) => ipcRenderer.invoke('get-instance-groups', launcherRoot),
+    /** インスタンスグループ作成・更新 */
+    updateInstanceGroups: (launcherRoot: string, groupsData: any) => ipcRenderer.invoke('update-instance-groups', launcherRoot, groupsData)
 });
 
 const openExternal = (url: string) => {

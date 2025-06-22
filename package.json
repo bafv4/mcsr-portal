@@ -1,7 +1,7 @@
 {
   "name": "mcsr-portal",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "commonjs",
   "description": "A tool to easily set up MCSR even on a PC after initialization. ",
   "author": {

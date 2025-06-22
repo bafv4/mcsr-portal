@@ -68,7 +68,9 @@ export const useInstanceStore = defineStore('instance', {
         useFabric: true,
         fabricVersion: '0.16.14',
         javaArgs: '',
-        javaPath: ''
+        javaPath: '',
+        selectedGroup: '',
+        newGroupName: ''
     }),
     actions: {
         setLauncherRoot(path: string): void {
@@ -99,6 +101,18 @@ export const useInstanceStore = defineStore('instance', {
         setJavaPath(path: string): void {
             this.javaPath = path;
         },
+        setSelectedGroup(group: string): void {
+            this.selectedGroup = group;
+        },
+        getSelectedGroup(): string {
+            return this.selectedGroup;
+        },
+        setNewGroupName(name: string): void {
+            this.newGroupName = name;
+        },
+        getNewGroupName(): string {
+            return this.newGroupName;
+        },
         $reset(): void {
             this.launcherRoot = '';
             this.instanceName = '';
@@ -108,6 +122,8 @@ export const useInstanceStore = defineStore('instance', {
             this.fabricVersion = '0.16.14';
             this.javaArgs = '';
             this.javaPath = '';
+            this.selectedGroup = '';
+            this.newGroupName = '';
         }
     }
 });

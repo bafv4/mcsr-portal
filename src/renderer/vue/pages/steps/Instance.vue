@@ -22,6 +22,36 @@
                 hide-details
             />
 
+            <!-- インスタンスグループ -->
+            <v-card-subtitle class="pl-0 pr-0 pt-4">{{ t('instance-group') }}</v-card-subtitle>
+            
+            <v-card-text class="pl-0 pr-0 pb-2">
+                <v-combobox
+                    :model-value="groupInput || null"
+                    :items="availableGroups"
+                    :label="t('instance-group-select')"
+                    class="mb-4"
+                    hide-details
+                    :loading="loadingGroups"
+                    clearable
+                    :placeholder="t('instance-group-name-placeholder')"
+                    :menu-props="{ maxHeight: 200 }"
+                    :filter="() => true"
+                    @update:model-value="onGroupInputChange"
+                />
+                <v-card-text class="pl-0 pr-0 pa-0 text-caption text-medium-emphasis">
+                    <p v-if="groupInput && !isExistingGroup(groupInput) && groupInput.trim()">
+                        {{ t('instance-group-new') }}: "{{ groupInput }}"
+                    </p>
+                    <p v-else-if="groupInput && isExistingGroup(groupInput)">
+                        {{ t('instance-group-select') }}: "{{ groupInput }}"
+                    </p>
+                    <p v-else>
+                        {{ t('instance-group-no-group') }}
+                    </p>
+                </v-card-text>
+            </v-card-text>
+
             <!-- メモリ設定 -->
             <v-card-subtitle class="pl-0 pr-0 pt-4">{{ t('memory-settings') }}</v-card-subtitle>
             <v-row class="mt-2 pa-0">
@@ -102,7 +132,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 import DirInput from '../../components/DirInput.vue';
@@ -129,6 +159,11 @@ const javaArgs = ref(instanceStore.javaArgs);
 const javaPath = ref(instanceStore.javaPath);
 const creating = ref(false);
 const loadingVersions = ref(false);
+
+// グループ関連
+const groupInput = ref<string | null>(null);
+const availableGroups = ref<string[]>([]);
+const loadingGroups = ref(false);
 
 const emit = defineEmits<{
     error: [msg: string],
@@ -185,6 +220,34 @@ const handleJavaPathSelect = (path: string) => {
     javaPath.value = toSlash(path);
 };
 
+// グループ一覧を取得
+const fetchGroups = async () => {
+    if (!selectedLauncherRoot.value) {
+        console.log('No launcher root selected');
+        return;
+    }
+    
+    loadingGroups.value = true;
+    try {
+        console.log('Fetching groups for:', selectedLauncherRoot.value);
+        const result = await window.bafv4.getInstanceGroups(selectedLauncherRoot.value);
+        console.log('Groups API result:', result);
+        
+        if (result.success && result.groups && result.groups.groups) {
+            availableGroups.value = Object.keys(result.groups.groups);
+            console.log('Available groups:', availableGroups.value);
+        } else {
+            availableGroups.value = [];
+            console.log('No groups found or invalid response');
+        }
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+        availableGroups.value = [];
+    } finally {
+        loadingGroups.value = false;
+    }
+};
+
 // 初期化時にPrism Launcherの確認とバージョン取得
 onMounted(async () => {
     fetchFabricVersions();
@@ -197,6 +260,19 @@ onMounted(async () => {
     // Set default java path if graalvm is downloaded
     if (!javaPath.value && dirStore.graalvm) {
         javaPath.value = toSlash(`${dirStore.graalvm}/bin/javaw.exe`);
+    }
+    
+    // グループ一覧を取得
+    await fetchGroups();
+});
+
+// ランチャールートが変更されたらグループ一覧を再読み込み
+watch(selectedLauncherRoot, async (newRoot, oldRoot) => {
+    if (newRoot && newRoot !== oldRoot) {
+        // グループ入力をクリア
+        groupInput.value = null;
+        // グループ一覧を再読み込み
+        await fetchGroups();
     }
 });
 
@@ -236,6 +312,18 @@ const checkOrNext = async () => {
     }
     instanceStore.setJavaArgs(javaArgs.value);
     instanceStore.setJavaPath(javaPath.value);
+    
+    // グループ情報をストアに保存
+    if (groupInput.value && !isExistingGroup(groupInput.value)) {
+        instanceStore.setSelectedGroup('');
+        instanceStore.setNewGroupName(groupInput.value);
+    } else if (groupInput.value && isExistingGroup(groupInput.value)) {
+        instanceStore.setSelectedGroup(groupInput.value);
+        instanceStore.setNewGroupName('');
+    } else {
+        instanceStore.setSelectedGroup('');
+        instanceStore.setNewGroupName('');
+    }
 
     // インスタンス作成
     creating.value = true;
@@ -248,7 +336,9 @@ const checkOrNext = async () => {
             useFabric: useFabric.value,
             fabricVersion: fabricVersion.value,
             javaArgs: javaArgs.value,
-            javaPath: javaPath.value
+            javaPath: javaPath.value,
+            selectedGroup: groupInput.value && isExistingGroup(groupInput.value) ? groupInput.value : '',
+            newGroupName: groupInput.value && !isExistingGroup(groupInput.value) ? groupInput.value : ''
         });
 
         if (result.success) {
@@ -264,6 +354,18 @@ const checkOrNext = async () => {
         emit('error', error.message || t('instance-creation-err'));
     } finally {
         creating.value = false;
+    }
+};
+
+const isExistingGroup = (group: string) => {
+    return availableGroups.value.includes(group);
+};
+
+const onGroupInputChange = (value: string | null) => {
+    if (value === null || value === undefined || value === '') {
+        groupInput.value = null;
+    } else {
+        groupInput.value = value;
     }
 };
 </script>

@@ -75,6 +75,16 @@ instance-name: インスタンス名
 instance-name-s1: インスタンスの名前を入力してください。
 instance-name-err: "インスタンス名が入力されていません！"
 
+instance-group: "インスタンスグループ"
+instance-group-s1: "インスタンスを追加するグループを選択してください。"
+instance-group-new: "新規グループを作成"
+instance-group-name: "グループ名"
+instance-group-name-placeholder: "グループ名を入力するか、既存のグループを選択"
+instance-group-select: "グループを選択"
+instance-group-no-group: "グループに属さない"
+instance-group-load-err: "グループ一覧の読み込みに失敗しました。"
+instance-group-create-err: "グループの作成に失敗しました。"
+
 memory-settings: メモリ割り当て
 memory-min: 最小 (MB)
 memory-max: 最大 (MB)
