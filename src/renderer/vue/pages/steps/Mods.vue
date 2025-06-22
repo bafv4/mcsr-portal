@@ -196,9 +196,6 @@ const fetchMods = async () => {
         const response = await axios.get('https://raw.githubusercontent.com/tildejustin/mcsr-meta/schema-6/mods.json');
         const allMods = response.data.mods;
         
-        // デバッグ用：最初の数個のモッドの構造を確認
-        console.log('APIレスポンスの最初の3つのモッド:', allMods.slice(0, 3));
-        
         // 推奨モッドの識別方法を調査
         const recommendedMods = allMods.filter((mod: any) => {
             // mac-onlyのモッドは除外
@@ -216,7 +213,6 @@ const fetchMods = async () => {
                 (mod.tags && mod.tags.includes('recommended'))
             );
         });
-        console.log('推奨モッド候補:', recommendedMods.map((m: any) => ({ name: m.name, modid: m.modid, recommended: m.recommended, traits: m.traits })));
         
         availableItems.value = allMods
             .map((mod: any): Item | null => {
@@ -247,7 +243,6 @@ const fetchMods = async () => {
                 
                 if (isRecommended) {
                     traits.push('recommended');
-                    console.log(`推奨モッドを識別: ${mod.name} (${mod.modid}) - recommended = ${mod.recommended}`);
                 }
                 
                 // 既存のtraitsがある場合は追加（mac-onlyとaccessibilityは特別処理）
@@ -262,9 +257,6 @@ const fetchMods = async () => {
                 if (isAccessibility) {
                     traits.push('accessibility');
                 }
-                
-                // デバッグ用：各モッドのプロパティを確認
-                console.log(`モッド ${mod.name}: recommended = ${mod.recommended}, isRecommended = ${isRecommended}, traits = ${traits.join(', ')}`);
 
                 return {
                     id: mod.modid,
@@ -277,7 +269,6 @@ const fetchMods = async () => {
             })
             .filter((item: Item | null): item is Item => item !== null);
     } catch (error) {
-        console.error('Failed to fetch mods:', error);
         emit('error', t('mods-fetch-err'));
     } finally {
         isLoading.value = false;
@@ -357,12 +348,8 @@ const filteredItems = computed(() => {
     return items.filter(item => {
         const traits = item.traits || [];
         
-        // デバッグ用：Mod IDをログ出力
-        console.log(`Filtering mod: ${item.name} (ID: ${item.id})`);
-        
         // Dynamic Menu FPSは常に非表示
         if (item.id === 'dynamic-menu-fps' || item.name.toLowerCase().includes('dynamic menu fps')) {
-            console.log(`Hiding Dynamic Menu FPS: ${item.name}`);
             return false;
         }
         
@@ -382,7 +369,6 @@ const filteredItems = computed(() => {
                 );
                 
                 if (shouldHide) {
-                    console.log(`Hiding mod for Ranked: ${item.name}`);
                     return false;
                 }
                 

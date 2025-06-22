@@ -2,7 +2,8 @@ import { defineStore } from "pinia";
 
 export const useDirStore = defineStore('dir', {
     state: () => ({
-        dir: ''
+        dir: '',
+        graalvm: ''
     }),
     actions: {
         set(d: string): void {
@@ -11,8 +12,15 @@ export const useDirStore = defineStore('dir', {
         get(): string {
             return this.dir;
         },
-        isEmpty() :boolean {
-            return this.dir==='';
+        isEmpty(): boolean {
+            return this.dir == '';
+        },
+        setGraalvm(path: string): void {
+            this.graalvm = path;
+        },
+        $reset() {
+            this.dir = '';
+            this.graalvm = '';
         }
     }
 });
@@ -55,11 +63,12 @@ export const useInstanceStore = defineStore('instance', {
     state: () => ({
         launcherRoot: '',
         instanceName: '',
-        memoryMin: 9500,
-        memoryMax: 9500,
+        memoryMin: 2048,
+        memoryMax: 2048,
         useFabric: true,
         fabricVersion: '0.16.14',
-        javaArgs: '-XX:+UseZGC -XX:+AlwaysPreTouch -Dgraal.TuneInlinerExploration=1 -XX:NmethodSweepActivity=1'
+        javaArgs: '',
+        javaPath: ''
     }),
     actions: {
         setLauncherRoot(path: string): void {
@@ -87,14 +96,18 @@ export const useInstanceStore = defineStore('instance', {
         setJavaArgs(args: string): void {
             this.javaArgs = args;
         },
+        setJavaPath(path: string): void {
+            this.javaPath = path;
+        },
         $reset(): void {
             this.launcherRoot = '';
             this.instanceName = '';
-            this.memoryMin = 9500;
-            this.memoryMax = 9500;
+            this.memoryMin = 2048;
+            this.memoryMax = 2048;
             this.useFabric = true;
             this.fabricVersion = '0.16.14';
-            this.javaArgs = '-XX:+UseZGC -XX:+AlwaysPreTouch -Dgraal.TuneInlinerExploration=1 -XX:NmethodSweepActivity=1';
+            this.javaArgs = '';
+            this.javaPath = '';
         }
     }
 });

@@ -6,7 +6,7 @@
                 <p>{{ t('dest-s1') }}</p>
                 <p>{{ t('dest-s2') }}</p>
             </v-card-text>
-            <DirInput @select="handleSelect" :init="selected" />
+            <DirInput @select="handleSelect" :init="selected" :placeholder="t('select-folder')" />
         </template>
         <template #btn>
             <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-cancel" :elevation="0" color="error"

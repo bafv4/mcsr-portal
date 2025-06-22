@@ -89,7 +89,6 @@ const { t } = useI18n();
 import pkg from '../../../../package.json';
 
 const info = ref(false);
-
 const openRepo = () => {
     window.bafv4.openExternal('https://github.com/bafv4/mcsr-portal');
 };
@@ -100,16 +99,16 @@ const checkForUpdates = async () => {
         if (result.success && result.hasUpdate) {
             const performUpdate = await window.bafv4.performUpdate();
             if (!performUpdate.success) {
-                console.error('Update failed:', performUpdate.error);
+                // エラーハンドリング
             }
         } else if (result.success && !result.hasUpdate) {
             // アップデートがない場合のメッセージを表示
             alert('最新版です。');
         } else {
-            console.error('Check for updates failed:', result.error);
+            // エラーハンドリング
         }
     } catch (error) {
-        console.error('Update check error:', error);
+        // エラーハンドリング
     }
 };
 </script>

@@ -87,6 +87,9 @@ const { t } = useI18n();
 const { translate } = useTranslate();
 const dirStore = useDirStore();
 
+// パスをスラッシュ区切りに変換するヘルパー
+const toSlash = (path: string) => path.replace(/\\/g, '/');
+
 // --- State ---
 const isLoading = ref(true);
 const error = ref(false);
@@ -110,7 +113,6 @@ const loadData = async () => {
         const response = await axios.get('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/apps.json');
         availableItems.value = response.data.apps || [];
     } catch (e) {
-        console.error(e);
         error.value = true;
     } finally {
         isLoading.value = false;
@@ -153,7 +155,6 @@ const startDownload = () => {
         window.bafv4.startDarwin(op, to);
         isDownloading.value = true;
     } catch (err) {
-        console.error(err);
         emit('error', 'Download failed to start');
     }
 };
@@ -166,15 +167,30 @@ const progZip = ref(0);
 const progInstaller = ref(0);
 const state = ref(0);
 
-window.bafv4.sendTotal((z, i) => {
+window.bafv4.sendTotal((z: number, i: number) => {
     totalZips.value = z;
     totalInstallers.value = i;
 });
 window.bafv4.tick((s, p, _t) => {
-    state.value = s;
-    if (s == 1) percent.value = p;
-    else if (s == 2) progZip.value = p;
-    else if (s == 3) progInstaller.value = p;
+    // このコールバックをasyncにする
+    (async () => {
+        state.value = s;
+        if (s == 1) percent.value = p;
+        else if (s == 2) progZip.value = p;
+        else if (s == 3) progInstaller.value = p;
+
+        // セットアップ完了時
+        if (s == 4) {
+            // GraalVMが選択されていた場合、ストアにパスを保存
+            const graalOption = selectedOptions.value['graal'];
+            if (graalOption) {
+                // apps.jsonのidをフォルダ名として使用
+                const graalvmDirName = graalOption.id;
+                const graalvmPath = toSlash(`${dirStore.get()}/${graalvmDirName}`);
+                dirStore.setGraalvm(graalvmPath);
+            }
+        }
+    })();
 });
 window.bafv4.catchDarwinErr((_s, m) => emit('error', m));
 

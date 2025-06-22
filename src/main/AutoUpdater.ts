@@ -16,6 +16,20 @@ interface GitHubRelease {
     }>;
 }
 
+// 翻訳用のユーティリティ関数
+async function translateText(text: string): Promise<string> {
+    try {
+        const encodedText = encodeURIComponent(text);
+        const response = await axios.get<{code: number, text: string}>(`https://script.google.com/macros/s/AKfycbw7n2mKWLhQvf_eYkmzrvcCWxxi7KLhiMZKiH2b2n-24Jb77YjDHPJMsCHiAYbgbpM1/exec?text=${encodedText}&source=en&target=ja`);
+        if (response.data && response.data.code === 200 && response.data.text) {
+            return response.data.text;
+        }
+        return text; // Return original text on failure
+    } catch (error) {
+        return text; // Return original text on error
+    }
+}
+
 export class AutoUpdater {
     private currentVersion: string;
     private updateUrl = 'https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/package.json';
@@ -27,9 +41,6 @@ export class AutoUpdater {
 
     async checkForUpdates(): Promise<boolean> {
         try {
-            console.log('Checking for updates...');
-            console.log('Current version:', this.currentVersion);
-
             // GitHubから最新のpackage.jsonを取得
             const response = await axios.get<PackageJson>(this.updateUrl, {
                 timeout: 10000,
@@ -39,26 +50,20 @@ export class AutoUpdater {
             });
 
             const latestVersion = response.data.version;
-            console.log('Latest version:', latestVersion);
 
             // バージョン比較
             if (this.isNewerVersion(latestVersion, this.currentVersion)) {
-                console.log('New version available!');
                 return true;
             }
 
-            console.log('No updates available');
             return false;
         } catch (error) {
-            console.error('Error checking for updates:', error);
             return false;
         }
     }
 
     async downloadUpdate(): Promise<string | null> {
         try {
-            console.log('Downloading update...');
-
             // 最新のリリース情報を取得
             const response = await axios.get<GitHubRelease>(this.releasesUrl, {
                 timeout: 30000,
@@ -81,8 +86,6 @@ export class AutoUpdater {
             const currentExePath = app.getPath('exe');
             const downloadPath = path.join(path.dirname(currentExePath), `update-${exeAsset.name}`);
 
-            console.log('Downloading to:', downloadPath);
-
             // ファイルをダウンロード
             const downloadResponse = await axios({
                 method: 'GET',
@@ -99,22 +102,18 @@ export class AutoUpdater {
 
             return new Promise((resolve, reject) => {
                 writer.on('finish', () => {
-                    console.log('Download completed');
                     resolve(downloadPath);
                 });
                 writer.on('error', reject);
             });
 
         } catch (error) {
-            console.error('Error downloading update:', error);
             return null;
         }
     }
 
     async installUpdate(downloadPath: string): Promise<boolean> {
         try {
-            console.log('Installing update...');
-
             const currentExePath = app.getPath('exe');
             const backupPath = currentExePath + '.backup';
 
@@ -139,7 +138,6 @@ export class AutoUpdater {
 
             return true;
         } catch (error) {
-            console.error('Error installing update:', error);
             return false;
         }
     }
@@ -164,11 +162,17 @@ export class AutoUpdater {
             const hasUpdate = await this.checkForUpdates();
             if (!hasUpdate) return;
 
+            // 多言語対応のメッセージ
+            const title = await translateText('Update Available');
+            const message = await translateText('A new version is available. Would you like to download it?');
+            const yesButton = await translateText('Yes');
+            const noButton = await translateText('No');
+
             const result = await dialog.showMessageBox({
                 type: 'info',
-                title: 'アップデートが利用可能です',
-                message: '新しいバージョンが利用可能です。ダウンロードしますか？',
-                buttons: ['はい', 'いいえ'],
+                title: title,
+                message: message,
+                buttons: [yesButton, noButton],
                 defaultId: 0
             });
 
@@ -177,12 +181,15 @@ export class AutoUpdater {
                 if (downloadPath) {
                     await this.installUpdate(downloadPath);
                 } else {
-                    dialog.showErrorBox('エラー', 'アップデートのダウンロードに失敗しました。');
+                    const errorTitle = await translateText('Error');
+                    const errorMessage = await translateText('Failed to download the update.');
+                    dialog.showErrorBox(errorTitle, errorMessage);
                 }
             }
         } catch (error) {
-            console.error('Update error:', error);
-            dialog.showErrorBox('エラー', 'アップデート中にエラーが発生しました。');
+            const errorTitle = await translateText('Error');
+            const errorMessage = await translateText('An error occurred during the update.');
+            dialog.showErrorBox(errorTitle, errorMessage);
         }
     }
 } 

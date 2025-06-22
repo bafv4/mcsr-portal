@@ -1,8 +1,9 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
-import * as path from 'node:path';
+import path from 'path';
 import * as fs from 'node:fs';
 import { darwinHandler } from './Darwin';
 import { AutoUpdater } from './AutoUpdater';
+import axios from 'axios';
 
 function renderTemplate(template: string, vars: Record<string, any>): string {
     return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
@@ -18,14 +19,47 @@ const createWindow = () => {
         minHeight: 480,
         title: `MCSR Portal`,
         autoHideMenuBar: true,
+        // パッケージ時はメニューバーを完全に無効化
+        ...(app.isPackaged && { 
+            autoHideMenuBar: true,
+            menuBarVisible: false
+        }),
         webPreferences: {
             preload: path.join(__dirname, 'Preload.js'),
             contextIsolation: true,
             sandbox: false,
             webSecurity: true,
             nodeIntegration: true,
+            // パッケージ時はDevToolsを無効化
+            devTools: app.isPackaged ? false : true,
         },
     });
+
+    // 開発時のみDevToolsを開く
+    if (!app.isPackaged) {
+        // win.webContents.openDevTools();
+    } else {
+        // パッケージ時はDevToolsを開くキーボードショートカットを無効化
+        win.webContents.on('before-input-event', (event, input) => {
+            // F12キーを無効化
+            if (input.key === 'F12') {
+                event.preventDefault();
+            }
+            // Ctrl+Shift+I (DevTools)を無効化
+            if (input.control && input.shift && input.key === 'I') {
+                event.preventDefault();
+            }
+            // Ctrl+Shift+C (DevTools)を無効化
+            if (input.control && input.shift && input.key === 'C') {
+                event.preventDefault();
+            }
+        });
+
+        // パッケージ時は右クリックメニューを無効化
+        win.webContents.on('context-menu', (event) => {
+            event.preventDefault();
+        });
+    }
 
     darwinHandler();
 
@@ -42,7 +76,6 @@ app.on('ready', async () => {
     
     // 自動アップデートチェック（本番環境のみ）
     if (!app.isPackaged) {
-        console.log('Skipping auto-update check in development mode');
         return;
     }
     
@@ -50,7 +83,7 @@ app.on('ready', async () => {
         const updater = new AutoUpdater();
         await updater.performUpdate();
     } catch (error) {
-        console.error('Auto-update error:', error);
+        // エラーログは開発時のみ
     }
 });
 
@@ -70,6 +103,19 @@ app.on('activate', () => {
 ipcMain.handle('select-dest', async () => {
     const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow()!, {
         properties: ['openDirectory', 'createDirectory']
+    });
+    if (result.canceled) return null;
+    return result.filePaths[0];
+});
+
+// Java実行ファイル選択用
+ipcMain.handle('select-java-executable', async () => {
+    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow()!, {
+        properties: ['openFile'],
+        filters: [
+            { name: 'Java Executable', extensions: ['exe'] },
+            { name: 'All Files', extensions: ['*'] }
+        ]
     });
     if (result.canceled) return null;
     return result.filePaths[0];
@@ -95,7 +141,7 @@ ipcMain.handle('check-prism-launcher', async () => {
 // インスタンス作成
 ipcMain.handle('create-instance', async (_event, instanceData: any) => {
     try {
-        const { launcherRoot, instanceName, memoryMin, memoryMax, useFabric, fabricVersion, javaArgs } = instanceData;
+        const { launcherRoot, instanceName, memoryMin, memoryMax, useFabric, fabricVersion, javaArgs, javaPath } = instanceData;
         
         // インスタンスディレクトリの作成
         const instanceDir = path.join(launcherRoot, 'instances', instanceName);
@@ -103,8 +149,12 @@ ipcMain.handle('create-instance', async (_event, instanceData: any) => {
             fs.mkdirSync(instanceDir, { recursive: true });
         }
 
+        // ランチャーの種類を検出
+        const isPrismLauncher = launcherRoot.toLowerCase().includes('prismlauncher');
+        const templateFileName = isPrismLauncher ? 'instance.cfg.prism.template' : 'instance.cfg.template';
+
         // テンプレート読み込み
-        const cfgTemplate = fs.readFileSync(path.join(__dirname, 'templates', 'instance.cfg.template'), 'utf-8');
+        const cfgTemplate = fs.readFileSync(path.join(__dirname, 'templates', templateFileName), 'utf-8');
         const mmcPackTemplate = fs.readFileSync(path.join(__dirname, 'templates', 'mmc-pack.json.template'), 'utf-8');
 
         // instance.cfg生成
@@ -112,7 +162,8 @@ ipcMain.handle('create-instance', async (_event, instanceData: any) => {
             instanceName,
             javaArgs,
             memoryMin,
-            memoryMax
+            memoryMax,
+            JavaPath: javaPath
         });
         fs.writeFileSync(path.join(instanceDir, 'instance.cfg'), instanceConfig);
 
@@ -131,7 +182,6 @@ ipcMain.handle('create-instance', async (_event, instanceData: any) => {
 
         return { success: true };
     } catch (error: any) {
-        console.error('Instance creation error:', error);
         return { success: false, error: error.message };
     }
 });
@@ -144,7 +194,6 @@ ipcMain.handle('create-directory', async (_event, dirPath: string) => {
         }
         return { success: true };
     } catch (error: any) {
-        console.error('Directory creation error:', error);
         return { success: false, error: error.message };
     }
 });
@@ -156,7 +205,6 @@ ipcMain.handle('check-for-updates', async () => {
         const hasUpdate = await updater.checkForUpdates();
         return { success: true, hasUpdate };
     } catch (error: any) {
-        console.error('Check for updates error:', error);
         return { success: false, error: error.message };
     }
 });
@@ -168,7 +216,19 @@ ipcMain.handle('perform-update', async () => {
         await updater.performUpdate();
         return { success: true };
     } catch (error: any) {
-        console.error('Perform update error:', error);
         return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('translate', async (_event, text: string) => {
+    try {
+        const encodedText = encodeURIComponent(text);
+        const response = await axios.get<{code: number, text: string}>(`https://script.google.com/macros/s/AKfycbw7n2mKWLhQvf_eYkmzrvcCWxxi7KLhiMZKiH2b2n-24Jb77YjDHPJMsCHiAYbgbpM1/exec?text=${encodedText}&source=en&target=ja`);
+        if (response.data && response.data.code === 200 && response.data.text) {
+            return response.data.text;
+        }
+        return text; // Return original text on failure
+    } catch (error) {
+        return text; // Return original text on error
     }
 });

@@ -117,7 +117,6 @@ export const darwinHandler = () => {
 const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
 
 export const calcSize = async (urls: string[]) => {
-    console.log(urls);
     const sizes = await Promise.all(
         urls.map(async (url) => {
             try {
@@ -125,7 +124,6 @@ export const calcSize = async (urls: string[]) => {
                 const len = res.headers['content-length'];
                 return len ? parseInt(len, 10) : 0;
             } catch (error) {
-                console.warn(`Failed to get size for ${url}`, error);
                 return 0; // Return 0 if size cannot be determined
             }
         })
@@ -149,7 +147,6 @@ export const runInstaller = (exePath: string): Promise<void> => {
             if (error) {
                 reject(error);
             } else {
-                console.log('Installer finished successfully.');
                 fs.unlinkSync(exePath);
                 resolve();
             }

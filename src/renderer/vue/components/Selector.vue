@@ -3,7 +3,7 @@
         <template #activator="{ props }">
             <div :class="{ 'd-inline-block': inline }" :style="customStyle" class="">
                 <v-text-field v-bind="props" :label="label" readonly hide-details :model-value="selectedLabel"
-                    :disabled="disabled" :clearable="clearable" density="comfortable" @click:clear="clear" class="">
+                    :disabled="disabled" :clearable="clearable" @click:clear="clear" class="">
                     <template #append-inner>
                         <v-icon icon="mdi-menu-down" class="me-2 transition-transform" :class="{ 'rotate-180': menu }"
                             @click.stop="toggleMenu" />

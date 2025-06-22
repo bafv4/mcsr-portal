@@ -15,6 +15,7 @@ type: "Type"
 loading: "Loading..."
 retry: "Retry"
 download: "Download"
+create: "Create"
 
 please-wait: "Please wait..."
 p-1: "Downloading"
@@ -75,8 +76,8 @@ instance-name-s1: "Please enter a name for the instance."
 instance-name-err: "Instance name is not entered!"
 
 memory-settings: "Memory Allocation"
-memory-min: "Memory (Min)"
-memory-max: "Memory (Max)"
+memory-min: "Min (MB)"
+memory-max: "Max (MB)"
 memory-err: "Invalid memory allocation amount."
 
 fabric-loader: "Fabric Loader"
@@ -108,11 +109,26 @@ rsg-only: "RSG Only"
 ssg-only: "SSG Only"
 accessibility: "Accessibility"
 
+instance-java-path: "Java Path"
+instance-java-path-desc: "Specify the full path to `javaw.exe`. This will be set automatically if you downloaded GraalVM."
+instance-java-path-placeholder: "Select javaw.exe"
 instance-java-args: "Java Arguments"
 instance-java-args-desc: "Recommended arguments for optimal performance."
+
+# Validation errors
+java-path-required: "Please specify the Java path."
+fabric-version-required: "Please select a Fabric loader version."
 
 # Setup Complete
 setup-complete-t: "Setup Complete"
 setup-complete-s1: "Congratulations! All necessary files are ready."
 setup-complete-s2: "Please close this window and launch the instance from your launcher."
 close: "Close"
+
+# Auto Updater
+update-available: "Update Available"
+update-available-message: "A new version is available. Would you like to download it?"
+update-download-failed: "Failed to download the update."
+update-error: "An error occurred during the update."
+yes: "Yes"
+no: "No"

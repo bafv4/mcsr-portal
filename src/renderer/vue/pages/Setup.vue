@@ -25,19 +25,13 @@
             </v-stepper-window>
         </v-stepper>
 
-        <v-snackbar v-model="snackbar" class="text-caption mb-6 elevation-4" timeout="5000">
-            <v-icon icon="mdi-alert-circle" color="error" />
-            {{ snackbarText }}
-            <template v-slot:actions>
-                <v-btn color="error" density="compact" variant="plain" @click="snackbar = false"
-                    icon="mdi-close"></v-btn>
-            </template>
-        </v-snackbar>
+        <Toast v-model="showToast" :message="toastMessage" :type="toastType" position="fixed" />
     </v-container>
 </template>
 
 <script lang="ts" setup>
 import { nextTick, ref, shallowRef, watch } from 'vue';
+import Toast from '../components/Toast.vue';
 
 // choose destination directory
 import ChooseDest from './steps/ChooseDest.vue';
@@ -97,9 +91,10 @@ const headRef = ref<InstanceType<typeof import('vuetify/components')['VSlideGrou
 const headItemRefs: Record<number, any> = {};
 const stepRefs = steps.map(() => shallowRef());
 
-/** snackbar stats & texts */
-const snackbar = ref(false);
-const snackbarText = ref("");
+/** toast stats & texts */
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref<'error' | 'success'>('error');
 
 /** cancel */
 const cancel = () => {
@@ -112,8 +107,9 @@ const goToComplete = () => {
 };
 
 const error = (err: string) => {
-    snackbarText.value = err;
-    snackbar.value = true;
+    toastMessage.value = err;
+    toastType.value = 'error';
+    showToast.value = true;
 }
 
 /** header scroll */

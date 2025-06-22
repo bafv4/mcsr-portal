@@ -15,6 +15,7 @@ type: "タイプ"
 loading: "読み込み中..."
 retry: "もう一度試す"
 download: "ダウンロード"
+create: "作成"
 
 please-wait: "お待ちください..."
 p-1: "ダウンロード"
@@ -75,8 +76,8 @@ instance-name-s1: インスタンスの名前を入力してください。
 instance-name-err: "インスタンス名が入力されていません！"
 
 memory-settings: メモリ割り当て
-memory-min: メモリ(最小)
-memory-max: メモリ(最大)
+memory-min: 最小 (MB)
+memory-max: 最大 (MB)
 memory-err: メモリの割り当て量が不正です。
 
 fabric-loader: Fabric Loader
@@ -100,7 +101,7 @@ mods: "Mod"
 mods-t: Modのダウウンロード
 mods-s: Modを選択してください。
 recommended-mods: "おすすめのmodをすべて選択"
-mcsr-ranked-desc: "Minecraft live speedrun race mod with elo ratings"
+mcsr-ranked-desc: "楽しいMCSRのランク戦"
 mods-fetch-err: Modリストの取得に失敗しました。
 no-mods-selected: "Modが選択されていません。"
 recommended: "おすすめ"
@@ -108,11 +109,26 @@ rsg-only: "RSG専用"
 ssg-only: "SSG専用"
 accessibility: "アクセシビリティ"
 
+instance-java-path: "Javaのパス"
+instance-java-path-desc: "使用するJavaのパスを指定してください。GraalVMをダウンロードした場合、自動で設定されます。"
+instance-java-path-placeholder: "javaw.exeを選択"
 instance-java-args: Java引数
 instance-java-args-desc: 最適なパフォーマンスのための推奨引数です。
+
+# Validation errors
+java-path-required: "Javaのパスを指定してください。"
+fabric-version-required: "Fabricローダーのバージョンを選択してください。"
 
 # Setup Complete
 setup-complete-t: "セットアップ完了"
 setup-complete-s1: "お疲れ様でした。必要なファイルの準備がすべて整いました。"
 setup-complete-s2: "このウィンドウを閉じて、ランチャーからインスタンスを起動してください。"
 close: "閉じる"
+
+# Auto Updater
+update-available: "アップデートが利用可能です"
+update-available-message: "新しいバージョンが利用可能です。ダウンロードしますか？"
+update-download-failed: "アップデートのダウンロードに失敗しました。"
+update-error: "アップデート中にエラーが発生しました。"
+yes: "はい"
+no: "いいえ"

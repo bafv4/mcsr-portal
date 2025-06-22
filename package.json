@@ -10,6 +10,7 @@
   "scripts": {
     "vite": "vite",
     "vite-build": "vite build --config vite.config.ts",
+    "main-build": "tsc -p tsconfig.main.json",
     "dev": "concurrently -k \"vite\" \"pnpm start\"",
     "start": "wait-on http://localhost:5173 && concurrently -k \"pnpm tsc:watch\" \"pnpm electron:start\"",
     "tsc:watch": "tsc -p tsconfig.main.json --watch",

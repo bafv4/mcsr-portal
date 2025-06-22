@@ -113,7 +113,6 @@ const loadData = async () => {
         const response = await axios.get('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/ext-tools.json');
         availableItems.value = response.data['ext-tools'] || [];
     } catch (e) {
-        console.error(e);
         error.value = true;
     } finally {
         isLoading.value = false;
@@ -152,7 +151,6 @@ const startDownload = () => {
         window.bafv4.startDarwin(op, to);
         isDownloading.value = true;
     } catch (err) {
-        console.error(err);
         emit('error', 'Download failed to start');
     }
 };
@@ -165,7 +163,7 @@ const progZip = ref(0);
 const progInstaller = ref(0);
 const state = ref(0);
 
-window.bafv4.sendTotal((z, i) => {
+window.bafv4.sendTotal((z: number, i: number) => {
     totalZips.value = z;
     totalInstallers.value = i;
 });

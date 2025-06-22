@@ -1,34 +1,47 @@
 <template>
-    <v-btn @click="openDialog" size="large" variant="tonal" block class="text-caption font-weight-regular justify-start">
-        <v-icon icon="mdi-folder-outline" class="mr-2"></v-icon>
-        <span v-if="!dir">{{ t('select-folder') }}</span>
-        <span v-else>{{ t('folder-selected') }} {{ dir }}</span>
-    </v-btn>
+    <v-card variant="tonal" density="comfortable" class="pa-3 cursor-pointer" @click="openDialog">
+        <div class="d-flex align-center">
+            <v-icon icon="mdi-folder-settings-outline" class="mr-2" />
+            <span v-if="selectedPath" class="text-caption">{{ selectedPath }}</span>
+            <span v-else class="text-caption">{{ placeholder }}</span>
+        </div>
+    </v-card>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-
-const dir = ref();
-const { t } = useI18n();
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
-    init: string;
-}>();
-const emits = defineEmits<{
-    (e: 'select', dir: string) : void
+    init?: string;
+    file?: boolean;
+    placeholder?: string;
 }>();
 
-onMounted(() => {
-    dir.value = props.init;
+const selectedPath = ref(props.init || '');
+
+const emit = defineEmits(['select']);
+
+const openDialog = async () => {
+    let path;
+    if (props.file) {
+        path = await window.bafv4.selectJavaExecutable();
+    } else {
+        path = await window.bafv4.selectDest();
+    }
+    
+    if (path) {
+        selectedPath.value = path;
+        emit('select', path);
+    }
+};
+
+watch(() => props.init, (newVal) => {
+    selectedPath.value = newVal || '';
 });
-
-async function openDialog() {
-    dir.value = await window.bafv4.selectDest();
-    emits('select', dir.value);
-}
 </script>
 
 <style lang="css" scoped>
+.cursor-pointer {
+    cursor: pointer;
+}
 </style>
