@@ -2,17 +2,15 @@ import { app, dialog } from 'electron';
 import * as path from 'node:path';
 import * as fs from 'fs-extra';
 import axios from 'axios';
-import * as https from 'https';
-
-interface PackageJson {
-    version: string;
-}
 
 interface GitHubRelease {
     tag_name: string;
+    name: string;
+    body: string;
     assets: Array<{
         name: string;
         browser_download_url: string;
+        size: number;
     }>;
 }
 
@@ -32,59 +30,72 @@ async function translateText(text: string): Promise<string> {
 
 export class AutoUpdater {
     private currentVersion: string;
-    private updateUrl = 'https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/package.json';
     private releasesUrl = 'https://api.github.com/repos/bafv4/mcsr-portal/releases/latest';
 
     constructor() {
         this.currentVersion = app.getVersion();
     }
 
-    async checkForUpdates(): Promise<boolean> {
+    async checkForUpdates(): Promise<{ hasUpdate: boolean; latestVersion?: string; releaseInfo?: GitHubRelease }> {
         try {
-            // GitHubから最新のpackage.jsonを取得
-            const response = await axios.get<PackageJson>(this.updateUrl, {
-                timeout: 10000,
-                httpsAgent: new https.Agent({
-                    rejectUnauthorized: false
-                })
-            });
+            console.log('Checking for updates...');
+            console.log('Current version:', this.currentVersion);
 
-            const latestVersion = response.data.version;
-
-            // バージョン比較
-            if (this.isNewerVersion(latestVersion, this.currentVersion)) {
-                return true;
-            }
-
-            return false;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async downloadUpdate(): Promise<string | null> {
-        try {
-            // 最新のリリース情報を取得
+            // GitHubから最新のリリース情報を取得
             const response = await axios.get<GitHubRelease>(this.releasesUrl, {
-                timeout: 30000,
-                httpsAgent: new https.Agent({
-                    rejectUnauthorized: false
-                })
+                timeout: 10000,
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'MCSR-Portal-Updater'
+                }
             });
 
             const release = response.data;
-            const exeAsset = release.assets.find(asset => 
+            const latestVersion = release.tag_name.replace('v', ''); // v1.0.0 -> 1.0.0
+
+            console.log('Latest version:', latestVersion);
+
+            // バージョン比較
+            if (this.isNewerVersion(latestVersion, this.currentVersion)) {
+                console.log('New version available');
+                return { 
+                    hasUpdate: true, 
+                    latestVersion: latestVersion,
+                    releaseInfo: release
+                };
+            }
+
+            console.log('No updates available');
+            return { hasUpdate: false };
+        } catch (error) {
+            console.error('Error checking for updates:', error);
+            return { hasUpdate: false };
+        }
+    }
+
+    async downloadUpdate(releaseInfo: GitHubRelease): Promise<string | null> {
+        try {
+            console.log('Starting download...');
+
+            // Windows用のexeアセットを探す
+            const exeAsset = releaseInfo.assets.find(asset => 
                 asset.name.endsWith('.exe') && 
-                asset.name.includes('portable')
+                (asset.name.includes('portable') || asset.name.includes('win'))
             );
 
             if (!exeAsset) {
-                throw new Error('No portable exe found in release');
+                console.error('No suitable exe asset found');
+                throw new Error('No suitable exe asset found in release');
             }
 
-            // 現在のexeのパスを取得
+            console.log('Found asset:', exeAsset.name);
+
+            // ダウンロード先のパスを設定
             const currentExePath = app.getPath('exe');
-            const downloadPath = path.join(path.dirname(currentExePath), `update-${exeAsset.name}`);
+            const downloadDir = path.dirname(currentExePath);
+            const downloadPath = path.join(downloadDir, `update-${exeAsset.name}`);
+
+            console.log('Downloading to:', downloadPath);
 
             // ファイルをダウンロード
             const downloadResponse = await axios({
@@ -92,9 +103,9 @@ export class AutoUpdater {
                 url: exeAsset.browser_download_url,
                 responseType: 'stream',
                 timeout: 300000, // 5分
-                httpsAgent: new https.Agent({
-                    rejectUnauthorized: false
-                })
+                headers: {
+                    'User-Agent': 'MCSR-Portal-Updater'
+                }
             });
 
             const writer = fs.createWriteStream(downloadPath);
@@ -102,29 +113,44 @@ export class AutoUpdater {
 
             return new Promise((resolve, reject) => {
                 writer.on('finish', () => {
+                    console.log('Download completed');
                     resolve(downloadPath);
                 });
-                writer.on('error', reject);
+                writer.on('error', (error) => {
+                    console.error('Download error:', error);
+                    reject(error);
+                });
             });
 
         } catch (error) {
+            console.error('Error downloading update:', error);
             return null;
         }
     }
 
     async installUpdate(downloadPath: string): Promise<boolean> {
         try {
+            console.log('Installing update...');
+            
             const currentExePath = app.getPath('exe');
             const backupPath = currentExePath + '.backup';
+
+            console.log('Creating backup at:', backupPath);
 
             // 現在のexeをバックアップ
             await fs.copy(currentExePath, backupPath);
 
+            console.log('Copying new exe...');
+
             // 新しいexeを現在の場所にコピー
             await fs.copy(downloadPath, currentExePath);
 
+            console.log('Removing download file...');
+
             // ダウンロードしたファイルを削除
             await fs.remove(downloadPath);
+
+            console.log('Starting new version...');
 
             // 新しいexeを実行
             const { spawn } = require('child_process');
@@ -133,11 +159,14 @@ export class AutoUpdater {
                 stdio: 'ignore'
             });
 
+            console.log('Quitting current app...');
+
             // 現在のアプリを終了
             app.quit();
 
             return true;
         } catch (error) {
+            console.error('Error installing update:', error);
             return false;
         }
     }
@@ -159,12 +188,17 @@ export class AutoUpdater {
 
     async performUpdate(): Promise<void> {
         try {
-            const hasUpdate = await this.checkForUpdates();
-            if (!hasUpdate) return;
+            console.log('Starting update process...');
+            
+            const updateInfo = await this.checkForUpdates();
+            if (!updateInfo.hasUpdate) {
+                console.log('No updates available');
+                return;
+            }
 
             // 多言語対応のメッセージ
             const title = await translateText('Update Available');
-            const message = await translateText('A new version is available. Would you like to download it?');
+            const message = await translateText(`A new version (${updateInfo.latestVersion}) is available. Would you like to download it?`);
             const yesButton = await translateText('Yes');
             const noButton = await translateText('No');
 
@@ -172,21 +206,29 @@ export class AutoUpdater {
                 type: 'info',
                 title: title,
                 message: message,
+                detail: updateInfo.releaseInfo?.body || '',
                 buttons: [yesButton, noButton],
                 defaultId: 0
             });
 
             if (result.response === 0) {
-                const downloadPath = await this.downloadUpdate();
+                console.log('User chose to download update');
+                
+                const downloadPath = await this.downloadUpdate(updateInfo.releaseInfo!);
                 if (downloadPath) {
+                    console.log('Download successful, installing...');
                     await this.installUpdate(downloadPath);
                 } else {
+                    console.error('Download failed');
                     const errorTitle = await translateText('Error');
                     const errorMessage = await translateText('Failed to download the update.');
                     dialog.showErrorBox(errorTitle, errorMessage);
                 }
+            } else {
+                console.log('User chose not to download update');
             }
         } catch (error) {
+            console.error('Error during update process:', error);
             const errorTitle = await translateText('Error');
             const errorMessage = await translateText('An error occurred during the update.');
             dialog.showErrorBox(errorTitle, errorMessage);

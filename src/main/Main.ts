@@ -73,18 +73,6 @@ const createWindow = () => {
 
 app.on('ready', async () => {
     createWindow();
-    
-    // 自動アップデートチェック（本番環境のみ）
-    if (!app.isPackaged) {
-        return;
-    }
-    
-    try {
-        const updater = new AutoUpdater();
-        await updater.performUpdate();
-    } catch (error) {
-        // エラーログは開発時のみ
-    }
 });
 
 app.on('window-all-closed', () => {
@@ -287,8 +275,12 @@ ipcMain.handle('update-instance-groups', async (_event, launcherRoot: string, gr
 ipcMain.handle('check-for-updates', async () => {
     try {
         const updater = new AutoUpdater();
-        const hasUpdate = await updater.checkForUpdates();
-        return { success: true, hasUpdate };
+        const updateInfo = await updater.checkForUpdates();
+        return { 
+            success: true, 
+            hasUpdate: updateInfo.hasUpdate,
+            latestVersion: updateInfo.latestVersion
+        };
     } catch (error: any) {
         return { success: false, error: error.message };
     }
