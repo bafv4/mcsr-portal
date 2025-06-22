@@ -38,6 +38,105 @@ const createWindow = () => {
     // 開発時のみDevToolsを開く
     if (!app.isPackaged) {
         // win.webContents.openDevTools();
+        
+        // 開発時のみメニューバーを表示
+        win.setMenuBarVisibility(true);
+        
+        // 開発用メニューを作成
+        const { Menu } = require('electron');
+        const template = [
+            {
+                label: '開発',
+                submenu: [
+                    {
+                        label: 'DevToolsを開く',
+                        accelerator: 'F12',
+                        click: () => {
+                            win.webContents.openDevTools();
+                        }
+                    },
+                    {
+                        label: 'AutoUpdaterテスト実行',
+                        accelerator: 'Ctrl+Shift+T',
+                        click: async () => {
+                            console.log('Running AutoUpdater tests from menu...');
+                            const updater = new AutoUpdater();
+                            
+                            try {
+                                // テストフロー実行
+                                console.log('\n--- Testing Update Flow ---');
+                                await updater.testUpdateFlow();
+                                
+                                // GitHub APIテスト
+                                console.log('\n--- Testing GitHub API ---');
+                                await updater.testGitHubAPI();
+                                
+                                // 実際の更新チェック
+                                console.log('\n--- Testing Real Update Check ---');
+                                const updateInfo = await updater.checkForUpdates();
+                                console.log('Update check result:', updateInfo);
+                                
+                                console.log('\n=== All tests completed ===');
+                                
+                                // テスト完了をユーザーに通知
+                                dialog.showMessageBox(win, {
+                                    type: 'info',
+                                    title: 'テスト完了',
+                                    message: 'AutoUpdaterテストが完了しました。\nコンソールログを確認してください。'
+                                });
+                            } catch (error) {
+                                console.error('Test execution failed:', error);
+                                dialog.showErrorBox('テストエラー', `テスト実行中にエラーが発生しました: ${error}`);
+                            }
+                        }
+                    },
+                    {
+                        label: '個別テスト',
+                        submenu: [
+                            {
+                                label: '更新フローテスト',
+                                click: async () => {
+                                    const updater = new AutoUpdater();
+                                    await updater.testUpdateFlow();
+                                    dialog.showMessageBox(win, {
+                                        type: 'info',
+                                        title: 'テスト完了',
+                                        message: '更新フローテストが完了しました。'
+                                    });
+                                }
+                            },
+                            {
+                                label: 'GitHub APIテスト',
+                                click: async () => {
+                                    const updater = new AutoUpdater();
+                                    await updater.testGitHubAPI();
+                                    dialog.showMessageBox(win, {
+                                        type: 'info',
+                                        title: 'テスト完了',
+                                        message: 'GitHub APIテストが完了しました。'
+                                    });
+                                }
+                            },
+                            {
+                                label: '更新チェックテスト',
+                                click: async () => {
+                                    const updater = new AutoUpdater();
+                                    const result = await updater.checkForUpdates();
+                                    dialog.showMessageBox(win, {
+                                        type: 'info',
+                                        title: '更新チェック結果',
+                                        message: `更新チェックが完了しました。\n更新の有無: ${result.hasUpdate ? 'あり' : 'なし'}\n最新バージョン: ${result.latestVersion || '不明'}`
+                                    });
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+        
+        const menu = Menu.buildFromTemplate(template);
+        Menu.setApplicationMenu(menu);
     } else {
         // パッケージ時はDevToolsを開くキーボードショートカットを無効化
         win.webContents.on('before-input-event', (event, input) => {
@@ -73,10 +172,47 @@ const createWindow = () => {
 
 app.on('ready', async () => {
     createWindow();
+    
+    // 開発環境でのみテスト機能を有効化
+    if (!app.isPackaged) {
+        console.log('=== Development Mode: AutoUpdater Tests Available ===');
+        console.log('Press Ctrl+Shift+T to run AutoUpdater tests');
+        
+        // キーボードショートカットでテスト実行
+        const { globalShortcut } = require('electron');
+        globalShortcut.register('CommandOrControl+Shift+T', async () => {
+            console.log('Running AutoUpdater tests...');
+            const updater = new AutoUpdater();
+            
+            try {
+                // テストフロー実行
+                console.log('\n--- Testing Update Flow ---');
+                await updater.testUpdateFlow();
+                
+                // GitHub APIテスト
+                console.log('\n--- Testing GitHub API ---');
+                await updater.testGitHubAPI();
+                
+                // 実際の更新チェック
+                console.log('\n--- Testing Real Update Check ---');
+                const updateInfo = await updater.checkForUpdates();
+                console.log('Update check result:', updateInfo);
+                
+                console.log('\n=== All tests completed ===');
+            } catch (error) {
+                console.error('Test execution failed:', error);
+            }
+        });
+    }
 });
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+        // グローバルショートカットの登録解除
+        if (!app.isPackaged) {
+            const { globalShortcut } = require('electron');
+            globalShortcut.unregisterAll();
+        }
         app.quit();
     }
 });
@@ -291,6 +427,28 @@ ipcMain.handle('perform-update', async () => {
     try {
         const updater = new AutoUpdater();
         await updater.performUpdate();
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+});
+
+// テスト用：AutoUpdaterのテストフロー実行
+ipcMain.handle('test-update-flow', async () => {
+    try {
+        const updater = new AutoUpdater();
+        await updater.testUpdateFlow();
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+});
+
+// テスト用：GitHub APIのテスト
+ipcMain.handle('test-github-api', async () => {
+    try {
+        const updater = new AutoUpdater();
+        await updater.testGitHubAPI();
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };

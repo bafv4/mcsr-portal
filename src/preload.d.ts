@@ -10,6 +10,8 @@ export interface Bafv4Api {
     updateInstanceGroups: (launcherRoot: string, groupsData: any) => Promise<{ success: boolean; error?: string }>;
     checkForUpdates: () => Promise<{ success: boolean; hasUpdate?: boolean; latestVersion?: string; error?: string }>;
     performUpdate: () => Promise<{ success: boolean; error?: string }>;
+    testUpdateFlow: () => Promise<{ success: boolean; error?: string }>;
+    testGitHubAPI: () => Promise<{ success: boolean; error?: string }>;
     tick: (callback: (state: number, prog: number, target: string) => void) => void;
     sendTotal: (callback: (zips: number, installers: number) => void) => void;
     catchDarwinErr: (callback: (state: number, errMsg: string) => void) => void;

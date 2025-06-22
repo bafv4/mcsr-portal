@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "./vue/pages/Home.vue";
 import Setup from "./vue/pages/Setup.vue";
 import SetupComplete from './vue/pages/SetupComplete.vue';
+import Test from './vue/components/Test.vue';
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
   {
     path: '/complete/',
     component: SetupComplete
+  },
+  {
+    path: '/test/',
+    name: 'Test',
+    component: Test
   }
 ];
 

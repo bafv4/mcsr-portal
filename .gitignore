@@ -23,3 +23,5 @@ dist
 *.sw?
 *.tgz
 wk
+
+TEST_GUIDE.md

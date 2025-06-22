@@ -20,6 +20,10 @@ contextBridge.exposeInMainWorld('bafv4', {
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
     /** 手動アップデート実行 */
     performUpdate: () => ipcRenderer.invoke('perform-update'),
+    /** テスト用：AutoUpdaterのテストフロー実行 */
+    testUpdateFlow: () => ipcRenderer.invoke('test-update-flow'),
+    /** テスト用：GitHub APIのテスト */
+    testGitHubAPI: () => ipcRenderer.invoke('test-github-api'),
     /** プログレス更新 */
     tick: (callback: (state: number, prog: number, target: string) => void) => {
         ipcRenderer.on('tick', (_, state, prog, target) => callback(state, prog, target));
