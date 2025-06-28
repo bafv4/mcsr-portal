@@ -1,5 +1,5 @@
 <template>
-    <v-toolbar fixed density="comfortable" class="pr-4 pl-4" title="MCSR Starter - Home" :elevation="4"
+    <v-toolbar fixed density="comfortable" class="pr-4 pl-4" title="MCSR Portal - Home" :elevation="4"
         color="background">
         <template v-slot:append>
             <v-btn density="comfortable" class="text-sm-button" icon="mdi-information-slab-circle-outline"
@@ -47,7 +47,7 @@
                 class="text-sm-button position-absolute info-close" icon="mdi-close" color="error"
                 @click="info = false" />
 
-            <v-card-title class="pb-4 pl-6 pt-6">MCSR Starter v{{ pkg.version }}</v-card-title>
+            <v-card-title class="pb-4 pl-6 pt-6">MCSR Portal v{{ pkg.version }}</v-card-title>
             <v-card-text class="pt-0 pb-0">
                 <table class="info-table">
                     <tbody>
