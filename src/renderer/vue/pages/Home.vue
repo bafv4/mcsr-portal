@@ -1,5 +1,5 @@
 <template>
-    <v-toolbar fixed density="comfortable" class="pr-4 pl-4" title="MCSR Portal - Home" :elevation="4"
+    <v-toolbar fixed density="comfortable" class="pr-4 pl-4" :title="`MCSR Portal - ${t('home')}`" :elevation="4"
         color="background">
         <template v-slot:append>
             <v-btn density="comfortable" class="text-sm-button" icon="mdi-information-slab-circle-outline"
@@ -34,7 +34,7 @@
 
                 <v-card-actions>
                     <v-btn size="large" class="font-weight-bold" color="secondary" variant="outlined"
-                        prepend-icon="mdi-pickaxe" :elevation="2" block disabled>{{
+                        prepend-icon="mdi-pickaxe" :elevation="2" block to="/instance-tools/">{{ 
                             t('tools') }}</v-btn>
                 </v-card-actions>
             </v-card>

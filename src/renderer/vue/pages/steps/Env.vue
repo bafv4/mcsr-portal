@@ -16,27 +16,25 @@
     </Wizard>
     <Wizard v-else-if="isDownloading">
         <template #main>
-            <DownloadProgressView
-                :state="state"
-                :percent="percent"
-                :total-zips="totalZips"
-                :prog-zip="progZip"
-                :total-installers="totalInstallers"
-                :prog-installer="progInstaller"
-            >
-                <ProgressItem :state="state == 0 ? `pending` : state == 1 ? `processing` : `done`" :prog="percent" percent>
+            <DownloadProgressView :state="state" :percent="percent" :total-zips="totalZips" :prog-zip="progZip"
+                :total-installers="totalInstallers" :prog-installer="progInstaller">
+                <ProgressItem :state="state == 0 ? `pending` : state == 1 ? `processing` : `done`" :prog="percent"
+                    percent>
                     <span class="text-subtitle-1">{{ t('p-1') }}</span>
                 </ProgressItem>
-                <ProgressItem :state="state in [0, 1] ? `pending` : state == 2 ? `processing` : `done`" v-if="totalZips > 0" :total="totalZips" :prog="progZip">
+                <ProgressItem :state="state in [0, 1] ? `pending` : state == 2 ? `processing` : `done`"
+                    v-if="totalZips > 0" :total="totalZips" :prog="progZip">
                     <span class="text-subtitle-1">{{ t('p-2') }}</span>
                 </ProgressItem>
-                <ProgressItem :state="state in [0, 1, 2] ? `pending` : state == 3 ? `processing` : `done`" v-if="totalInstallers > 0" :total="totalInstallers" :prog="progInstaller">
+                <ProgressItem :state="state in [0, 1, 2] ? `pending` : state == 3 ? `processing` : `done`"
+                    v-if="totalInstallers > 0" :total="totalInstallers" :prog="progInstaller">
                     <span class="text-subtitle-1">{{ t('p-3') }}</span>
                 </ProgressItem>
             </DownloadProgressView>
         </template>
         <template #btn>
-            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right" class="border-primary-md" :disabled="state != 4">
+            <v-btn color="primary" variant="outlined" @click="emit('next')" append-icon="mdi-arrow-right"
+                class="border-primary-md" :disabled="state != 4">
                 {{ t('next') }}
             </v-btn>
         </template>
@@ -47,23 +45,37 @@
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
                 <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
 
-                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style use-translation-only>
+                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions"
+                    card-style use-translation-only>
                     <template #description="{ item }">
-                        <div v-if="item.description" class="text-caption text-medium-emphasis mt-2" style="line-height: 1.4; overflow-wrap: break-word;">
+                        <div v-if="item.description" class="text-caption text-medium-emphasis mt-2"
+                            style="line-height: 1.4; overflow-wrap: break-word;">
                             {{ translatedDescriptions[item.id] || item.description }}
                         </div>
                     </template>
                 </Checkboxes>
+
+                <v-card class="mt-4 pa-2" color="background">
+                    <v-card-title class="text-subtitle-1">{{ t('ahk') }}</v-card-title>
+                    <v-card-text>
+                        <p>{{ t('ahk-s1') }}</p>
+                        <a href="https://www.autohotkey.com/download/ahk-install.exe" target="_blank"
+                            class="text-primary">{{ t('ahk-s2') }}</a>
+                    </v-card-text>
+                </v-card>
             </v-card>
         </template>
         <template #btn>
-            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary" @click="$emit('back')">
+            <v-btn variant="plain" class="mr-auto" prepend-icon="mdi-arrow-left" :elevation="0" color="secondary"
+                @click="$emit('back')">
                 {{ t('back') }}
             </v-btn>
-            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next" class="border-secondary-md">
+            <v-btn color="secondary" variant="outlined" @click="$emit('next')" append-icon="mdi-skip-next"
+                class="border-secondary-md">
                 {{ t('skip') }}
             </v-btn>
-            <v-btn color="primary" variant="outlined" @click="startDownload" prepend-icon="mdi-tray-arrow-down" class="border-primary-md">
+            <v-btn color="primary" variant="outlined" @click="startDownload" prepend-icon="mdi-tray-arrow-down"
+                class="border-primary-md">
                 {{ t('download') }}
             </v-btn>
         </template>
@@ -141,7 +153,7 @@ const startDownload = () => {
         emit('error', t('env-err-1'));
         return;
     }
-    
+
     // This seems to be a safeguard, but might be brittle.
     if (optionsToDownload.some(opt => !opt.id)) {
         // Handle case where an option is not fully selected
