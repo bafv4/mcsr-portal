@@ -1,5 +1,5 @@
 <template>
-    <LoadingView v-if="isLoading" />
+    <LoadingOverlay v-if="isLoading" />
     <Wizard v-else-if="error">
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
@@ -45,15 +45,20 @@
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
-                <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
+                <v-card-text class="pl-0 pr-0">{{ t('env-s') }}</v-card-text>
 
-                <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style use-translation-only>
-                    <template #description="{ item }">
-                        <div v-if="item.description" class="text-caption text-medium-emphasis mt-2" style="line-height: 1.4; overflow-wrap: break-word;">
-                            {{ translatedDescriptions[item.id] || item.description }}
-                        </div>
-                    </template>
-                </Checkboxes>
+                <v-card-text class="pl-0 pr-0">
+                    <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style>
+                        <template #item="{ item }">
+                            <span class="text-body-1">{{ item.name }}</span>
+                        </template>
+                        <template #description="{ item }">
+                            <div v-if="item.description" class="text-caption text-medium-emphasis mt-2">
+                                {{ translatedDescriptions[item.id] || item.description }}
+                            </div>
+                        </template>
+                    </Checkboxes>
+                </v-card-text>
             </v-card>
         </template>
         <template #btn>
@@ -74,7 +79,7 @@
 import { useI18n } from 'vue-i18n';
 import { ref, onMounted, watch } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
-import LoadingView from '../../components/LoadingView.vue';
+import LoadingOverlay from '../../components/LoadingOverlay.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
 import Wizard from '../../components/Wizard.vue';
 import DownloadProgressView from '../../components/DownloadProgressView.vue';
@@ -87,10 +92,7 @@ const { t } = useI18n();
 const { translate } = useTranslate();
 const dirStore = useDirStore();
 
-// パスをスラッシュ区切りに変換するヘルパー
-const toSlash = (path: string) => path.replace(/\\/g, '/');
-
-// --- State ---
+// State
 const isLoading = ref(true);
 const error = ref(false);
 const isDownloading = ref(false);
@@ -99,19 +101,28 @@ const selectedItems = ref<string[]>([]);
 const selectedOptions = ref<Record<string, Option>>({});
 const translatedDescriptions = ref<Record<string, string>>({});
 
+// Progress tracking
+const totalZips = ref(0);
+const totalInstallers = ref(0);
+const percent = ref(0);
+const progZip = ref(0);
+const progInstaller = ref(0);
+const state = ref(0);
+
+// Emits
 const emit = defineEmits<{
     (e: 'error', msg: string): void;
     (e: 'next'): void;
     (e: 'back'): void;
 }>();
 
-// --- Data Fetching and Processing ---
+// Data fetching
 const loadData = async () => {
     isLoading.value = true;
     error.value = false;
     try {
         const response = await axios.get('https://raw.githubusercontent.com/bafv4/mcsr-portal/refs/heads/main/meta/apps.json');
-        availableItems.value = response.data.apps || [];
+        availableItems.value = response.data['apps'] || [];
     } catch (e) {
         error.value = true;
     } finally {
@@ -119,6 +130,7 @@ const loadData = async () => {
     }
 };
 
+// Watch for translations
 watch(availableItems, (newItems) => {
     newItems.forEach(async (item) => {
         if (item.description) {
@@ -127,13 +139,11 @@ watch(availableItems, (newItems) => {
     });
 }, { deep: true });
 
-onMounted(loadData);
-
+// Methods
 const onChangeOptions = (val: Record<string, Option>) => {
     selectedOptions.value = val;
 };
 
-// --- Download Logic ---
 const startDownload = () => {
     const optionsToDownload: Option[] = selectedItems.value.map(id => selectedOptions.value[id]);
 
@@ -142,11 +152,7 @@ const startDownload = () => {
         return;
     }
     
-    // This seems to be a safeguard, but might be brittle.
-    if (optionsToDownload.some(opt => !opt.id)) {
-        // Handle case where an option is not fully selected
-        return;
-    }
+    if (optionsToDownload.some(opt => !opt.id)) return;
 
     useResourcesStore().add(selectedItems.value);
     try {
@@ -159,43 +165,30 @@ const startDownload = () => {
     }
 };
 
-// --- Progress Tracking (remains the same) ---
-const totalZips = ref(0);
-const totalInstallers = ref(0);
-const percent = ref(0);
-const progZip = ref(0);
-const progInstaller = ref(0);
-const state = ref(0);
+const retry = async () => {
+    error.value = false;
+    await loadData();
+};
 
+// Progress tracking setup
 window.bafv4.sendTotal((z: number, i: number) => {
     totalZips.value = z;
     totalInstallers.value = i;
 });
 window.bafv4.tick((s, p, _t) => {
-    // このコールバックをasyncにする
-    (async () => {
-        state.value = s;
-        if (s == 1) percent.value = p;
-        else if (s == 2) progZip.value = p;
-        else if (s == 3) progInstaller.value = p;
-
-        // セットアップ完了時
-        if (s == 4) {
-            // GraalVMが選択されていた場合、ストアにパスを保存
-            const graalOption = selectedOptions.value['graal'];
-            if (graalOption) {
-                // apps.jsonのidをフォルダ名として使用
-                const graalvmDirName = graalOption.id;
-                const graalvmPath = toSlash(`${dirStore.get()}/${graalvmDirName}`);
-                dirStore.setGraalvm(graalvmPath);
-            }
-        }
-    })();
+    state.value = s;
+    if (s == 1) percent.value = p;
+    else if (s == 2) progZip.value = p;
+    else if (s == 3) progInstaller.value = p;
 });
 window.bafv4.catchDarwinErr((_s, m) => emit('error', m));
 
-const retry = async () => {
-    error.value = false;
-    await loadData();
-};
+// Initialize
+onMounted(loadData);
 </script>
+
+<style scoped>
+.env-content {
+  height: 100%;
+}
+</style>

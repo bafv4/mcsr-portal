@@ -270,18 +270,15 @@ update-error: "An error occurred during the update."
 yes: "Yes"
 no: "No"
 
-# Tool Mock
-tool-mock-content: "Tool content will be displayed here."
+# Instance Tools
+instance-tools: "Instance Tools"
+mod-check: "ModCheck"
+mod-settings: "Mod Settings"
+options: "Options"
 
-# Tools
-mod-config: "Mod Config"
-select-instance-first: "Please select an instance first"
-select-instance-hint: "Please select an instance folder (e.g., MyInstance)"
-loading-mods: "Loading mods..."
-no-mods-installed: "No mods installed"
-loading-config: "Loading configuration..."
-configuration: "Configuration"
-save-config: "Save Config"
-no-config-available: "No configuration available"
-default: "Default"
-discard-changes: "Discard Changes"
+# Mod Update
+update-mods: "Update Mods"
+instance-path-not-set: "Instance path is not set."
+mods-folder-not-found: "Mods folder not found."
+mods-updated-successfully: "Mods updated successfully."
+mods-update-failed: "Failed to update mods."

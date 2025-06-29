@@ -130,7 +130,7 @@ onUnmounted(() => {
 
 /* カスタムトランジション */
 .toast-enter-active {
-    transition: all 0.3s ease-out;
+    transition: all 0.2s ease-in-out;
 }
 
 .toast-leave-active {

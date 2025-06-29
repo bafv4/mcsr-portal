@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer, shell } from 'electron';
-import * as path from 'node:path';
 
 contextBridge.exposeInMainWorld('bafv4', {
     /** フォルダ選択 */
@@ -42,14 +41,12 @@ contextBridge.exposeInMainWorld('bafv4', {
     getInstanceGroups: (launcherRoot: string) => ipcRenderer.invoke('get-instance-groups', launcherRoot),
     /** インスタンスグループ作成・更新 */
     updateInstanceGroups: (launcherRoot: string, groupsData: any) => ipcRenderer.invoke('update-instance-groups', launcherRoot, groupsData),
-    /** アプリバージョン取得 */
-    getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-    // Mod Config APIs
-    getInstalledMods: (instancePath: string) => ipcRenderer.invoke('get-installed-mods', instancePath),
-    getModConfig: (instancePath: string, modId: string) => ipcRenderer.invoke('get-mod-config', instancePath, modId),
-    saveModConfig: (instancePath: string, modId: string, config: any) => ipcRenderer.invoke('save-mod-config', instancePath, modId, config),
-    getDefaultModConfig: (modId: string) => ipcRenderer.invoke('get-default-mod-config', modId),
-    testModDetection: () => ipcRenderer.invoke('test-mod-detection'),
+    /** modsディレクトリ内のファイル一覧を取得 */
+    listFiles: (dirPath: string) => ipcRenderer.invoke('list-files', dirPath),
+    /** ファイル削除 */
+    removeFile: (filePath: string) => ipcRenderer.invoke('remove-file', filePath),
+    /** ファイルダウンロード */
+    downloadFile: (url: string, destPath: string) => ipcRenderer.invoke('download-file', url, destPath)
 });
 
 const openExternal = (url: string) => {

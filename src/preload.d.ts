@@ -16,6 +16,12 @@ export interface Bafv4Api {
     sendTotal: (callback: (zips: number, installers: number) => void) => void;
     catchDarwinErr: (callback: (state: number, errMsg: string) => void) => void;
     translate: (text: string) => Promise<string>;
+    /** modsディレクトリ内のファイル一覧を取得 */
+    listFiles: (dirPath: string) => Promise<string[]>;
+    /** ファイル削除 */
+    removeFile: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+    /** ファイルダウンロード */
+    downloadFile: (url: string, destPath: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {
