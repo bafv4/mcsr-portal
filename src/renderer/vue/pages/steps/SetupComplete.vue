@@ -10,13 +10,23 @@
                     <p class="text-body-1">{{ t('setup-complete-s1') }}</p>
                     <p class="text-body-1 mt-4">{{ t('setup-complete-s2') }}</p>
                 </v-card-text>
-                <v-card-actions class="pa-0 mt-6">
+                <v-card-actions class="pa-0 mt-6 d-flex flex-column gap-3">
                     <v-btn
                         color="primary"
                         variant="outlined"
-                        @click="goHome"
-                        append-icon="mdi-home"
+                        @click="goToTools"
+                        prepend-icon="mdi-tools"
                         class="border-primary-md"
+                        block
+                    >
+                        {{ t('go-to-tools') }}
+                    </v-btn>
+                    <v-btn
+                        color="secondary"
+                        variant="outlined"
+                        @click="goHome"
+                        prepend-icon="mdi-home"
+                        class="border-secondary-md"
                         block
                     >
                         {{ t('home') }}
@@ -30,11 +40,30 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { useDirStore, useResourcesStore, useModsStore, useInstanceStore } from '../../composables/Stores';
 
 const { t } = useI18n();
 const router = useRouter();
 
+// ストアのインスタンスを取得
+const dirStore = useDirStore();
+const resourcesStore = useResourcesStore();
+const modsStore = useModsStore();
+const instanceStore = useInstanceStore();
+
+// ツール画面に遷移（ストアの情報は保持）
+const goToTools = () => {
+    router.push({ path: '/tools/' });
+};
+
+// ホームに戻る（ストアの情報を削除）
 const goHome = () => {
+    // すべてのストアをリセット
+    dirStore.$reset();
+    resourcesStore.$reset();
+    modsStore.$reset();
+    instanceStore.$reset();
+    
     router.push({ path: '/' });
 };
 </script>
