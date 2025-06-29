@@ -3,8 +3,8 @@ import { createRouter, createWebHashHistory } from "vue-router";
 // pages
 import Home from "./vue/pages/Home.vue";
 import Setup from "./vue/pages/Setup.vue";
-import SetupComplete from './vue/pages/SetupComplete.vue';
-import Test from './vue/components/Test.vue';
+import SetupComplete from './vue/pages/steps/SetupComplete.vue';
+import InstanceTools from './vue/pages/InstanceTools.vue';
 
 const routes = [
   {
@@ -22,9 +22,9 @@ const routes = [
     component: SetupComplete
   },
   {
-    path: '/test/',
-    name: 'Test',
-    component: Test
+    path: '/instance-tools/',
+    name: 'InstanceTools',
+    component: InstanceTools
   }
 ];
 

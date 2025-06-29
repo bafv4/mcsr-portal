@@ -142,3 +142,16 @@ update-download-failed: "Failed to download the update."
 update-error: "An error occurred during the update."
 yes: "Yes"
 no: "No"
+
+# Instance Tools
+instance-tools: "Instance Tools"
+mod-check: "ModCheck"
+mod-settings: "Mod Settings"
+options: "Options"
+
+# Mod Update
+update-mods: "Update Mods"
+instance-path-not-set: "Instance path is not set."
+mods-folder-not-found: "Mods folder not found."
+mods-updated-successfully: "Mods updated successfully."
+mods-update-failed: "Failed to update mods."

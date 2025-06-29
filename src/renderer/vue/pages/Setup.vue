@@ -108,6 +108,7 @@ const goToComplete = () => {
 
 const error = (err: string) => {
     toastMessage.value = err;
+    console.error(err);
     toastType.value = 'error';
     showToast.value = true;
 }

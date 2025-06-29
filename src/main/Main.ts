@@ -467,3 +467,63 @@ ipcMain.handle('translate', async (_event, text: string) => {
         return text; // Return original text on error
     }
 });
+
+// ファイル一覧取得
+ipcMain.handle('list-files', async (_event, dirPath: string) => {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            return [];
+        }
+        const files = fs.readdirSync(dirPath);
+        return files;
+    } catch (error: any) {
+        console.error('Error listing files:', error);
+        return [];
+    }
+});
+
+// ファイル削除
+ipcMain.handle('remove-file', async (_event, filePath: string) => {
+    try {
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+});
+
+// ファイルダウンロード
+ipcMain.handle('download-file', async (_event, url: string, destPath: string) => {
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: url,
+            responseType: 'stream',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+            }
+        });
+
+        // ディレクトリが存在しない場合は作成
+        const dir = path.dirname(destPath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        const writer = fs.createWriteStream(destPath);
+        response.data.pipe(writer);
+
+        return new Promise<{ success: boolean; error?: string }>((resolve) => {
+            writer.on('finish', () => {
+                resolve({ success: true });
+            });
+            writer.on('error', (error) => {
+                resolve({ success: false, error: error.message });
+            });
+        });
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+});

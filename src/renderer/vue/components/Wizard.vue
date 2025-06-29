@@ -2,7 +2,7 @@
     <v-card class="elevation-0 flex-grow-1 overflow-y-auto wizard-main" style="min-height: 0;">
         <slot name="main"></slot>
     </v-card>
-    <v-card class="elevation-0 d-flex flex-column ga-2" style="flex-shrink: 0;">
+    <v-card class="elevation-0 d-flex flex-column ga-2 wizard-footer mt-2" style="flex-shrink: 0;">
         <slot name="toast"></slot>
         <v-divider></v-divider>
         <div class="d-flex ga-2 justify-end">
@@ -32,5 +32,9 @@
 
 .wizard-main::-webkit-scrollbar-thumb:hover {
     background-color: rgba(var(--v-border-color), 0.7);
+}
+
+.wizard-footer {
+    background-color: inherit;
 }
 </style>

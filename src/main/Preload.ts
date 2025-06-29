@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer, shell } from 'electron';
-import * as path from 'node:path';
 
 contextBridge.exposeInMainWorld('bafv4', {
     /** フォルダ選択 */
@@ -41,7 +40,13 @@ contextBridge.exposeInMainWorld('bafv4', {
     /** インスタンスグループ一覧取得 */
     getInstanceGroups: (launcherRoot: string) => ipcRenderer.invoke('get-instance-groups', launcherRoot),
     /** インスタンスグループ作成・更新 */
-    updateInstanceGroups: (launcherRoot: string, groupsData: any) => ipcRenderer.invoke('update-instance-groups', launcherRoot, groupsData)
+    updateInstanceGroups: (launcherRoot: string, groupsData: any) => ipcRenderer.invoke('update-instance-groups', launcherRoot, groupsData),
+    /** modsディレクトリ内のファイル一覧を取得 */
+    listFiles: (dirPath: string) => ipcRenderer.invoke('list-files', dirPath),
+    /** ファイル削除 */
+    removeFile: (filePath: string) => ipcRenderer.invoke('remove-file', filePath),
+    /** ファイルダウンロード */
+    downloadFile: (url: string, destPath: string) => ipcRenderer.invoke('download-file', url, destPath)
 });
 
 const openExternal = (url: string) => {

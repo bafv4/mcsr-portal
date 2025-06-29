@@ -52,6 +52,9 @@ launcher: "ランチャー"
 obs: "OBS"
 ahk: "AutoHotKey"
 
+ahk-s1: "AutoHotKeyは自動でインストールできません。必要な場合は下のリンクから手動でインストールしてください。"
+ahk-s2: "AutoHotKeyのダウンロード"
+
 launcher-type: "ランチャーの種類"
 
 env-err-1: "何も選択されていません。"
@@ -142,3 +145,16 @@ update-download-failed: "アップデートのダウンロードに失敗しま�
 update-error: "アップデート中にエラーが発生しました。"
 yes: "はい"
 no: "いいえ"
+
+# Instance Tools
+instance-tools: "インスタンスツール"
+mod-check: "ModCheck"
+mod-settings: "Mod設定"
+options: "操作設定"
+
+# Mod Update
+update-mods: "Mod更新"
+instance-path-not-set: "インスタンスのパスが設定されていません。"
+mods-folder-not-found: "modsフォルダが見つかりません。"
+mods-updated-successfully: "Modの更新が完了しました。"
+mods-update-failed: "Modの更新に失敗しました。"

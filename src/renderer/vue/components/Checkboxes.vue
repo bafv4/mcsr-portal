@@ -1,6 +1,6 @@
 <template>
     <!-- Card Style Layout -->
-    <div v-if="cardStyle" class="d-flex flex-column ga-2">
+    <div v-if="cardStyle" class="d-flex flex-column ga-1">
         <v-card
             v-for="item in items"
             :key="item.id"
