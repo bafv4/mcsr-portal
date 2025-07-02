@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import SidebarLayout from '../components/SidebarLayout.vue';
+import SidebarLayout from '../layouts/SidebarLayout.vue';
 import { useI18n } from 'vue-i18n';
 import ModCheck from './instance-tools/ModCheck.vue';
 import ModsSettings from './instance-tools/ModsSettings.vue';

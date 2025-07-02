@@ -1,6 +1,6 @@
 <template>
     <v-container class="h-screen pa-4 d-flex flex-column">
-        <v-stepper v-model="step" class="steps ga-2 d-flex flex-column w-100 h-100 flex-grow-1">
+        <v-stepper v-model="step" class="steps ga-1 d-flex flex-column w-100 h-100 flex-grow-1">
             <v-stepper-header class="w-100 hd" style="flex-shrink: 0;">
                 <v-slide-group ref="headRef" class="w-100" v-model="step" direction="horizontal" show-arrows>
                     <v-slide-group-item v-for="(s, i) in steps" :key="i" :value="i + 1"

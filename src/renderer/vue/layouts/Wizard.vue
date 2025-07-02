@@ -17,10 +17,6 @@
     scrollbar-color: rgba(var(--v-border-color), 0.5) transparent;
 }
 
-.wizard-main::-webkit-scrollbar {
-    width: 8px;
-}
-
 .wizard-main::-webkit-scrollbar-track {
     background: transparent;
 }

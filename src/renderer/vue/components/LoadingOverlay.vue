@@ -3,7 +3,7 @@
     <div class="loading-overlay">
       <v-progress-circular
         :size="64"
-        :width="6"
+        :width="8"
         color="primary"
         indeterminate
       />

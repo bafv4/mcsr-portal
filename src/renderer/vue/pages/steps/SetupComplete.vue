@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { useDirStore, useResourcesStore, useModsStore, useInstanceStore } from '../../composables/Stores';
+import { useDirStore, useResourcesStore, useModsStore, useInstanceStore } from '../../../composables/Stores';
 
 const { t } = useI18n();
 const router = useRouter();

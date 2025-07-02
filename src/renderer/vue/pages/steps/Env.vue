@@ -45,7 +45,7 @@
         <template #main>
             <v-card class="pa-0 ma-0 elevation-0">
                 <v-card-title class="pl-0 pt-0 pr-0">{{ t('env-t') }}</v-card-title>
-                <v-card-text class="pl-0 pr-0">{{ t('env-s') }}</v-card-text>
+                <v-card-text class="pl-0 pr-0">{{ t('env-s1') }}</v-card-text>
 
                 <v-card-text class="pl-0 pr-0">
                     <Checkboxes v-model="selectedItems" :items="availableItems" @update:selectedOptions="onChangeOptions" card-style>
@@ -58,6 +58,12 @@
                             </div>
                         </template>
                     </Checkboxes>
+
+                    <v-card class="mt-4 elevation-0 pa-2" variant="outlined">
+                        <v-card-title class="text-subtitle-1">{{ t('ahk') }}</v-card-title>
+                        <v-card-text>{{ t('ahk-s1') }}</v-card-text>
+                        <v-btn color="primary" variant="plain" @click="openAhkDownload" prepend-icon="mdi-open-in-new" class="text-body-2">{{ t('ahk-s2') }}</v-btn>
+                    </v-card>
                 </v-card-text>
             </v-card>
         </template>
@@ -81,7 +87,7 @@ import { ref, onMounted, watch } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingOverlay from '../../components/LoadingOverlay.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
-import Wizard from '../../components/Wizard.vue';
+import Wizard from '../../layouts/Wizard.vue';
 import DownloadProgressView from '../../components/DownloadProgressView.vue';
 import type { Item, Option } from '../../../../env';
 import { useDirStore, useResourcesStore } from '../../../composables/Stores';
@@ -142,6 +148,10 @@ watch(availableItems, (newItems) => {
 // Methods
 const onChangeOptions = (val: Record<string, Option>) => {
     selectedOptions.value = val;
+};
+
+const openAhkDownload = () => {
+    window.open('https://www.autohotkey.com/', '_blank');
 };
 
 const startDownload = () => {

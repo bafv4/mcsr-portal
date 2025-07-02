@@ -1,12 +1,12 @@
 <template>
     <!-- Card Style Layout -->
-    <div v-if="cardStyle" class="d-flex flex-column ga-1">
+    <div class="d-flex flex-column ga-2">
         <v-card
             v-for="item in items"
             :key="item.id"
             variant="outlined"
             :class="['checkbox-card', { 'is-selected': checkedItems.includes(item.id) }]"
-            class="pa-2"
+            class="py-1 px-2"
         >
             <div class="cursor-pointer" @click="toggleCheckbox(item.id)">
                 <div class="d-flex ga-2 align-center pa-0">
@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <!-- Description slot, outside the main flex container -->
-                <div v-if="$slots.description" class="ma-0 pb-2" style="padding-left: 35px">
+                <div v-if="$slots.description" class="ma-0 pb-2 pt-0 mt-0" style="padding-left: 35px">
                     <slot name="description" :item="item"></slot>
                 </div>
             </div>
@@ -49,45 +49,6 @@
             </v-expand-transition>
         </v-card>
     </div>
-
-    <!-- Default List Style Layout -->
-    <v-container v-else class="container overflow-y-auto" fluid>
-        <v-row>
-            <v-col v-for="item in items" :key="item.id" cols="12" class="d-flex flex-column chk-block">
-                <label class="d-flex ga-2 align-center cursor-pointer flex-0-0">
-                    <v-checkbox
-                        :value="item.id"
-                        v-model="checkedItems"
-                        density="compact"
-                        hide-details
-                        color="primary"
-                        class="ma-0 pa-0"
-                        @change="emitChange"
-                    ></v-checkbox>
-                    <!-- @slot Use this slot to custom render the item label -->
-                    <slot name="item" :item="item">
-                    <span class="d-inline-block">{{ getItemName(item.id) }}</span>
-                    </slot>
-                </label>
-                <v-expand-transition>
-                    <div v-if="checkedItems.includes(item.id) && item.options?.length >= 2" class="pl-10 pt-2">
-                        <v-btn-toggle
-                            v-model="selectedOptions[item.id]"
-                            @update:modelValue="emitChange"
-                            color="primary"
-                            variant="outlined"
-                            density="compact"
-                            mandatory
-                        >
-                            <v-btn v-for="opt in item.options" :key="opt.id" :value="opt" size="small" class="text-none">
-                                {{ opt.name }}
-                            </v-btn>
-                        </v-btn-toggle>
-                    </div>
-                </v-expand-transition>
-            </v-col>
-        </v-row>
-    </v-container>
 </template>
 
 <script lang="ts" setup>
@@ -169,14 +130,16 @@ function emitChange() {
 <style scoped>
 .checkbox-card {
     border-color: transparent;
-    transition: border-color 0.2s ease-in-out;
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .checkbox-card.is-selected {
     border-color: rgb(var(--v-theme-primary));
+    background-color: rgba(var(--v-theme-primary), 0.025);
 }
 
 .checkbox-card:not(.is-selected):hover {
     border-color: rgba(var(--v-border-color), 0.5);
+    background-color: rgba(var(--v-border-color), 0.025);
 }
 </style>

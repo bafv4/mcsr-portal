@@ -105,7 +105,7 @@
                             </div>
                         </template>
                         <template #description="{ item }">
-                            <div v-if="item.description" class="text-caption text-medium-emphasis mt-2">
+                            <div v-if="item.description" class="text-caption text-medium-emphasis">
                                 {{ translatedDescriptions[item.id] || item.description }}
                             </div>
                         </template>
@@ -134,7 +134,7 @@ import { useTheme } from 'vuetify';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingOverlay from '../../components/LoadingOverlay.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
-import Wizard from '../../components/Wizard.vue';
+import Wizard from '../../layouts/Wizard.vue';
 import DownloadProgressView from '../../components/DownloadProgressView.vue';
 import { useModsComposable } from '../../../composables/Mods';
 

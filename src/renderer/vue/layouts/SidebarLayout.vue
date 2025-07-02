@@ -30,7 +30,7 @@
         </v-navigation-drawer>
 
         <v-main transition="none" class="h-100vh">
-            <v-container class="pa-4 h-100 main-content">
+            <v-container class="pa-4 h-100 overflow-y-auto main-content">
                 <component :is="currentComponent" v-if="currentComponent" />
             </v-container>
         </v-main>
@@ -145,28 +145,22 @@ const onDrawerUpdate = (val: boolean) => {
 }
 
 .main-content {
-    overflow: hidden;
     display: flex;
     flex-direction: column;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(var(--v-border-color), 0.5) transparent;
 }
 
-.header-area {
-    flex-shrink: 0;
-    border-bottom: 1px solid #e0e0e0;
-    background-color: #f5f5f5;
+.main-content::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.content-area {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+.main-content::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--v-border-color), 0.5);
+    border-radius: 4px;
 }
 
-.content-container {
-    overflow-y: auto;
-    overflow-x: hidden;
-    flex: 1;
-    max-height: 100%;
+.main-content::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(var(--v-border-color), 0.7);
 }
 </style>

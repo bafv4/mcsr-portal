@@ -81,7 +81,7 @@ import { ref, onMounted, watch } from 'vue';
 import Checkboxes from '../../components/Checkboxes.vue';
 import LoadingOverlay from '../../components/LoadingOverlay.vue';
 import ProgressItem from '../../components/ProgressItem.vue';
-import Wizard from '../../components/Wizard.vue';
+import Wizard from '../../layouts/Wizard.vue';
 import DownloadProgressView from '../../components/DownloadProgressView.vue';
 import type { Item, Option } from '../../../../env';
 import { useDirStore, useResourcesStore } from '../../../composables/Stores';

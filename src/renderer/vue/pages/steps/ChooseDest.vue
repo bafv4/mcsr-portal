@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import DirInput from '../../components/DirInput.vue';
-import Wizard from '../../components/Wizard.vue';
+import Wizard from '../../layouts/Wizard.vue';
 import { useDirStore } from '../../../composables/Stores';
 import { useI18n } from 'vue-i18n';
 import { computed } from 'vue';
