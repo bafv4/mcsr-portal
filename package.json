@@ -27,7 +27,6 @@
     "fs-extra": "^11.3.0",
     "got": "^14.4.7",
     "material-symbols": "^0.31.9",
-    "sudo-prompt": "^9.2.1",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
@@ -36,14 +35,14 @@
     "@vue/devtools-api": "^7.7.7",
     "@vue/tsconfig": "^0.7.0",
     "copyfiles": "^2.4.1",
-    "electron": "^36.6.0",
+    "electron": "^36.7.0",
     "electron-builder": "^26.0.12",
     "pinia": "^3.0.3",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-vuetify": "^2.1.1",
     "vue": "^3.5.17",
-    "vue-i18n": "^11.1.7",
+    "vue-i18n": "^11.1.9",
     "vue-router": "^4.5.1",
     "vue-tsc": "^2.2.12",
     "vuetify": "^3.8.12",
@@ -70,6 +69,13 @@
       ],
       "icon": "icon.ico",
       "artifactName": "mcsr-portal-v${version}.exe"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "icon.icns",
+      "artifactName": "mcsr-portal-v${version}.dmg"
     }
   }
 }

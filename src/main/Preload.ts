@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer, shell } from 'electron';
+import os from 'os';
 
 contextBridge.exposeInMainWorld('bafv4', {
     /** フォルダ選択 */
@@ -46,11 +47,23 @@ contextBridge.exposeInMainWorld('bafv4', {
     /** ファイル削除 */
     removeFile: (filePath: string) => ipcRenderer.invoke('remove-file', filePath),
     /** ファイルダウンロード */
-    downloadFile: (url: string, destPath: string) => ipcRenderer.invoke('download-file', url, destPath)
+    downloadFile: (url: string, destPath: string) => ipcRenderer.invoke('download-file', url, destPath),
+    /** OS判定 */
+    getOS: () => getPlatform()
 });
 
 const openExternal = (url: string) => {
     if (/^https?:\/\//.test(url)) {
         shell.openExternal(url);
+    }
+};
+
+const getPlatform = () => {
+    if (os.platform() === 'win32') {
+        return 'Windows';
+    } else if (os.platform() === 'darwin') {
+        return 'macOS';
+    } else {
+        return 'Unsupported';
     }
 };

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import sudo from 'sudo-prompt';
+import { runElevated } from './Elevator';
 import extract from "extract-zip"
 import * as fs from 'fs';
 import { BrowserWindow, ipcMain } from 'electron';
@@ -102,8 +102,12 @@ export const darwinHandler = () => {
             await sleep(3500);
             for (const [index, ins] of installers.entries()) {
                 tick(3, index, ins.name);
-                await runInstaller(ins.fullPath).catch((err) => {
-                    win.webContents.send('darwin-err', 2, err);
+                await runElevated(ins.fullPath)
+                .then(() => {
+                    tick(3, index + 1, ins.name);
+                })
+                .catch((err) => {
+                    win.webContents.send('darwin-err', 3, err);
                 });
             }
             tick(3, installers.length, '');
@@ -134,22 +138,4 @@ export const calcSize = async (urls: string[]) => {
 export const extractZip = async (zipPath: string): Promise<void> => {
     await extract(zipPath, { dir: path.dirname(zipPath) });
     fs.unlinkSync(zipPath);
-};
-
-export const runInstaller = (exePath: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        const command = `"${path.resolve(exePath)}"`;
-        const options = {
-            name: 'MCSR Starter App Installer',
-        };
-
-        sudo.exec(command, options, (error, _stdout, _stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                fs.unlinkSync(exePath);
-                resolve();
-            }
-        });
-    });
 };
