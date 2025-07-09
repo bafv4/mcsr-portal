@@ -84,7 +84,7 @@ export const darwinHandler = () => {
 
         if (zips) {
             tick(2, 0, '');
-            await sleep(500);
+            await sleep(100);
             // state => unzip
             for (const [index, zip] of zips.entries()) {
                 tick(2, index, zip.name);
@@ -99,9 +99,10 @@ export const darwinHandler = () => {
         // state => installing
         if (installers) {
             tick(3, 0, '');
-            await sleep(3500);
+            await sleep(100);
             for (const [index, ins] of installers.entries()) {
                 tick(3, index, ins.name);
+                console.log(ins.fullPath);
                 await runElevated(ins.fullPath)
                 .then(() => {
                     tick(3, index + 1, ins.name);

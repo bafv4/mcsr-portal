@@ -25,13 +25,13 @@
             </v-stepper-window>
         </v-stepper>
 
-        <Toast v-model="showToast" :message="toastMessage" :type="toastType" position="fixed" />
+        <!-- <Toast v-model="showToast" :message="toastMessage" :type="toastType" position="fixed" /> -->
     </v-container>
 </template>
 
 <script lang="ts" setup>
 import { nextTick, ref, shallowRef, watch } from 'vue';
-import Toast from '../components/Toast.vue';
+// import Toast from '../components/Toast.vue';
 
 // choose destination directory
 import ChooseDest from './steps/ChooseDest.vue';
@@ -46,6 +46,8 @@ const dir = useDirStore();
 // i18n, routing
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { useGlobalUI } from '../../composables/GlobalUI';
+const { showToast } = useGlobalUI();
 const { t } = useI18n();
 const router = useRouter();
 
@@ -92,9 +94,9 @@ const headItemRefs: Record<number, any> = {};
 const stepRefs = steps.map(() => shallowRef());
 
 /** toast stats & texts */
-const showToast = ref(false);
-const toastMessage = ref("");
-const toastType = ref<'error' | 'success'>('error');
+// const showToast = ref(false);
+// const toastMessage = ref("");
+// const toastType = ref<'error' | 'success'>('error');
 
 /** cancel */
 const cancel = () => {
@@ -107,10 +109,12 @@ const goToComplete = () => {
 };
 
 const error = (err: string) => {
-    toastMessage.value = err;
+    // toastMessage.value = err;
+    // console.error(err);
+    // toastType.value = 'error';
+    // showToast.value = true;
+    showToast({ message: err, type: 'error' });
     console.error(err);
-    toastType.value = 'error';
-    showToast.value = true;
 }
 
 /** header scroll */
